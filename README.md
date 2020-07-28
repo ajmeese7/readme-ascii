@@ -1,6 +1,8 @@
 # readme-ascii
 ![readme-ascii](https://user-images.githubusercontent.com/17814535/88557807-5269fd80-cff0-11ea-9ebd-70c1d67b65af.png)
 
+![Hits](https://hitcounter.pythonanywhere.com/count/tag.svg?url=https%3A%2F%2Fgithub.com%2Fajmeese7%2Freadme-ascii)
+
 Whenever you're exploring the most successful repositories on GitHub, there is usually
 one thing that stands out the most: **a logo**.
 
