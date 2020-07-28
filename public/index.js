@@ -3,7 +3,7 @@
 // Waits until the document's elements are available
 document.addEventListener("DOMContentLoaded", function(event) {
     let generateButton = document.getElementById("generateButton");
-    generateButton.disabled = false;
+    generateButton.disabled = true;
 
     // Disables button if asciiText empty; otherwise enabled
     let asciiText = document.getElementById("asciiText");
