@@ -1,0 +1,45 @@
+/* Everything that needs to be centered */
+body,
+button,
+img,
+#userInput,
+#asciiText {
+    margin: auto;
+    display: table !important;
+}
+
+body {
+    max-width: 1000px;
+}
+
+#banner, #result {
+    max-width: 80%;
+    margin-top: 25px;
+}
+@media screen and (max-width: 1000px) {
+    #banner, #result {
+        max-width: 95%;
+    }
+}
+
+#userInput {
+    margin-top: 50px !important;
+}
+#asciiText {
+    padding: 5px;
+}
+button {
+    margin-top: 5px;
+}
+button:disabled {
+    cursor: not-allowed;
+}
+.btn-outline-dark.focus, .btn-outline-dark:focus {
+    /* Override the Bootstrap default; 0.2rem is too thick */
+    box-shadow: 0 0 0 0.1rem rgba(52,58,64,.5);
+}
+
+.spinner-border {
+    margin-top: 60px;
+    display: none;
+}

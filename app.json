@@ -1,0 +1,6 @@
+{
+  "name": "readme-ascii",
+  "description": "Turn text into an image of ASCII art",
+  "repository": "https://github.com/ajmeese7/readme-ascii",
+  "keywords": ["readme", "ascii", "express", "puppeteer"]
+}

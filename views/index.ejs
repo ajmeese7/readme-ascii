@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>README ASCII</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" 
+            integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+        <link rel="stylesheet" href="index.css">
+        <script src="index.js"></script>
+    </head>
+
+    <body>
+        <a href="https://github.com/ajmeese7/readme-ascii">
+            <img src="https://user-images.githubusercontent.com/17814535/88557807-5269fd80-cff0-11ea-9ebd-70c1d67b65af.png" 
+                id="banner" alt="README ASCII" />
+        </a>
+
+        <div id="userInput">
+            <p>Enter your text for ASCII-ification:</p>
+            <input id="asciiText" type="text" required="required" placeholder="README ASCII" />
+
+            <button type="button" id="generateButton" class="btn btn-outline-dark" 
+                onclick="generateImage()">Generate Image</button>
+        </div>
+
+        <div class="d-flex justify-content-center">
+            <div class="spinner-border" role="status">
+              <span class="sr-only">Loading...</span>
+            </div>
+        </div>
+        <img id="result" />
+    </body>
+</html>
