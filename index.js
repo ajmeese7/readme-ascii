@@ -20,6 +20,7 @@ app
   .get('/generate', function (req, res) {
       var text_param = req.query.text;
       var ascii_url = "http://patorjk.com/software/taag/#p=display&f=Alpha&t=" + encodeURIComponent(text_param);
+      if (!text_param) return res.render('error');
 
       (async () => {
         const browser = await puppeteer.launch({args: ['--no-sandbox', '--disable-setuid-sandbox']})
@@ -84,5 +85,5 @@ app
         await browser.close()
       })()
   })
-  .get('*', (req, res) => res.render('error')) // TODO: Make
+  .get('*', (req, res) => res.render('error'))
   .listen(PORT, () => console.log(`Listening on ${ PORT }`)) // localhost:5000
