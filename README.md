@@ -1,10 +1,8 @@
 # readme-ascii
 ![readme-ascii](https://user-images.githubusercontent.com/17814535/88557807-5269fd80-cff0-11ea-9ebd-70c1d67b65af.png)
 
-The goal of this project is to take user's text input and turn it into an image such as the above.
-
 Whenever you're exploring the most successful repositories on GitHub, there is usually
-one thing that stands out the most: a logo.
+one thing that stands out the most: **a logo**.
 
 If you go to [Node.js](https://github.com/nodejs/node), right at the top they have
 their fancy logo. It's the same with [Wiki.js](https://github.com/Requarks/wiki),
@@ -12,11 +10,11 @@ their fancy logo. It's the same with [Wiki.js](https://github.com/Requarks/wiki)
 [GitHub Readme Stats](https://github.com/anuraghazra/github-readme-stats),
 [nodemon](https://github.com/remy/nodemon)... the list goes on.
 
-Unfortunately, not all of us have the spare time to spend on a logo. Enter readme-ascii.
+Unfortunately, not all of us have the spare time to spend on a logo. Enter **readme-ascii**.
 
-ASCII art is an easy solution to a logo, but unfortunately it tends to not display
-well across different screen sizes. That's why I made this project, to turn the 
-ASCII text into an image that can resize as expected.
+ASCII art is an easy solution to a logo, but it tends to not display well across different 
+screen sizes. That's why I made this project, to turn the ASCII text into an image that 
+can resize as expected.
 
 ## Usage
 Using this project couldn't be simpler.
