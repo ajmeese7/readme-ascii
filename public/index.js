@@ -18,7 +18,7 @@ function generateImage() {
     let spinner = document.getElementsByClassName("spinner-border")[0];
     spinner.style.display = 'block';
     let image = document.getElementById("result");
-    image.style.display = 'none';
+    image.style.visibility = "hidden";
 
     let asciiText = document.getElementById("asciiText").value;
     asciiText = encodeURIComponent(asciiText);
@@ -26,7 +26,7 @@ function generateImage() {
     let client = new HttpClient();
     client.get(`/generate?text=${asciiText}`, function(response) {
         image.setAttribute('src', response);
-        image.style.display = 'block';
+        image.style.visibility = "visible";
 
         // Hide loader
         spinner.style.display = 'none';
