@@ -19,8 +19,10 @@ app
   })
   .get('/generate', function (req, res) {
       var text_param = req.query.text;
+      console.log("Param:", text_param);
       var ascii_url = "http://patorjk.com/software/taag/#p=display&f=Alpha&t=" + encodeURIComponent(text_param);
       if (!text_param) return res.render('error');
+      console.log("Attempting to enter puppeteer...");
 
       (async () => {
         const browser = await puppeteer.launch({args: ['--no-sandbox', '--disable-setuid-sandbox']})
@@ -59,14 +61,10 @@ app
         await page.click('.output [data-toggle="toggle-chain"]');
         await page.waitForSelector(dataUri);
         page.$eval(dataUri, elem => elem.click());
-        
-        // https://stackoverflow.com/a/61077067/6456163
-        const base64_url = await page.evaluate(async _ => {
-          // https://stackoverflow.com/a/48602881
-          while (!document.querySelectorAll(".widget-copy")[3]) {
-            await new Promise(r => setTimeout(r, 100));
-          }
 
+        // Unique selector for the right copy button. Don't ask questions, just leave it alone. Please.
+        await page.waitForSelector("div.tool-chained>div:nth-child(4)>div:nth-child(1)>div:nth-child(2)>div>div:nth-child(2)>div:nth-child(1)>div:nth-child(4)");
+        const base64_url = await page.evaluate(_ => {
           // Press the copy button, which selects the text
           let copy = document.getElementsByClassName("widget-copy")[3];
           copy.click();
