@@ -19,8 +19,10 @@ app
   })
   .get('/generate', function (req, res) {
       var text_param = req.query.text;
+      console.log("Param:", text_param);
       var ascii_url = "http://patorjk.com/software/taag/#p=display&f=Alpha&t=" + encodeURIComponent(text_param);
       if (!text_param) return res.render('error');
+      console.log("Attempting to enter puppeteer...");
 
       (async () => {
         const browser = await puppeteer.launch({args: ['--no-sandbox', '--disable-setuid-sandbox']})
@@ -38,6 +40,7 @@ app
         
         // Get the ASCII from the page
         const ascii = await page.$eval('#taag_output_text', el => el.textContent);
+        console.log("ASCII:", ascii);
 
         // Navigate to the ASCII tools site
         await page.goto("https://onlineasciitools.com/convert-ascii-to-image")
@@ -77,6 +80,8 @@ app
         });
 
         // Display URL and stop writing to page
+        console.log("base64 URL:", base64_url);
+        console.log("url LENGTH:", base64_url.length);
         res.write(base64_url);
         res.end();
 
