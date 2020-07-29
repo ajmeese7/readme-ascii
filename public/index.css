@@ -30,6 +30,16 @@ body {
 }
 button {
     margin-top: 5px;
+    display: inline !important;
+}
+#download {
+    display: inline-block;
+}
+#download:hover {
+    text-decoration: none;
+}
+.btn-outline-success {
+    margin-left: 5px;
 }
 button:disabled {
     cursor: not-allowed;

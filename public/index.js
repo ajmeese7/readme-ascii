@@ -1,9 +1,9 @@
-// TODO: More clear file names
-
 // Waits until the document's elements are available
 document.addEventListener("DOMContentLoaded", function(event) {
     let generateButton = document.getElementById("generateButton");
     generateButton.disabled = true;
+    let downloadButton = document.getElementById("downloadButton");
+    downloadButton.disabled = true;
 
     // Disables button if asciiText empty; otherwise enabled
     let asciiText = document.getElementById("asciiText");
@@ -14,17 +14,29 @@ document.addEventListener("DOMContentLoaded", function(event) {
 });
 
 function generateImage() {
-    // Unhide loader and hides previous image
+    // Unhide loader, hide previous image, and disable download
     let spinner = document.getElementsByClassName("spinner-border")[0];
     spinner.style.display = 'block';
     let image = document.getElementById("result");
     image.style.visibility = "hidden";
+    let downloadButton = document.getElementById("downloadButton");
+    downloadButton.disabled = true;
 
     let asciiText = document.getElementById("asciiText").value;
     asciiText = encodeURIComponent(asciiText);
 
     let client = new HttpClient();
     client.get(`/generate?text=${asciiText}`, function(response) {
+        // Set download href to the image, and the name to the text,
+        // but with spaces replaced with underscores
+        let download = document.getElementById("download");
+        download.href = response;
+        download.download = `${decodeURIComponent(asciiText).split(' ').join('_')}.png`;
+        
+        // Allow the download button
+        downloadButton.disabled = false;
+
+        // Set image src to retrieved image and display it
         image.setAttribute('src', response);
         image.style.visibility = "visible";
 
