@@ -17,9 +17,6 @@
   "devDependencies": {
     "nodemon": "^2.0.4"
   },
-  "nodemonConfig": {
-    "delay": "2500"
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/ajmeese7/readme-ascii"

@@ -40,7 +40,6 @@ app
         
         // Get the ASCII from the page
         const ascii = await page.$eval('#taag_output_text', el => el.textContent);
-        console.log("ASCII:", ascii);
 
         // Navigate to the ASCII tools site
         await page.goto("https://onlineasciitools.com/convert-ascii-to-image")
@@ -48,12 +47,10 @@ app
         await page.$eval('[data-index="background-color"]', el => el.value = "rgba(255, 255, 255, 0)");
         await page.$eval('[data-index="text-color"]', el => el.value = "rgb(0, 0, 0)");
         await page.$eval('[data-index="font-size"]', el => el.value = "12px");
-        console.log("All options selected...");
 
         // https://github.com/puppeteer/puppeteer/issues/3347#issuecomment-427234299
         const boldCheckbox = '[data-index="bold"]';
         await page.evaluate((boldCheckbox) => document.querySelector(boldCheckbox).click(), boldCheckbox);
-        console.log("Bolded...");
         
         // Places ASCII from other website into the textarea
         await page.$eval('.data-wrapper textarea', (el, input) => el.value = input, ascii);
@@ -64,35 +61,21 @@ app
         await page.click('.output [data-toggle="toggle-chain"]');
         await page.waitForSelector(dataUri);
         page.$eval(dataUri, elem => elem.click());
-        console.log("Clicked the 'generate baseUri' button...");
-        
-        // https://stackoverflow.com/a/61077067/6456163
-        const base64_url = await page.evaluate(_ => { // async
-          // NOTE: the problem is THIS NEVER RUNS on Heroku!
-            // Testing idea: remove async and while loop;
-            // if this runs then, I can look for a while loop replacemnent
+        console.log("Right before the trouble block...");
 
-          console.log("INSIDE the base64_url const...");
-          // https://stackoverflow.com/a/48602881/6456163
-          /*while (!document.querySelectorAll(".widget-copy")[3]) {
-            await new Promise(r => setTimeout(r, 100));
-          }*/
-
-          console.log("AFTER the while loop...");
-
+        // Unique selector for the right copy button. Don't ask questions, just leave it alone. Please.
+        await page.waitForSelector("div.tool-chained>div:nth-child(4)>div:nth-child(1)>div:nth-child(2)>div>div:nth-child(2)>div:nth-child(1)>div:nth-child(4)");
+        const base64_url = await page.evaluate(_ => {
           // Press the copy button, which selects the text
           let copy = document.getElementsByClassName("widget-copy")[3];
           copy.click();
-          console.log("Copy button clicked...");
 
           // Get and return the selected text (the base64 URL)
           let selection = window.getSelection().toString();
-          console.log("Gathered selection:", selection);
           return selection;
         });
 
         // Display URL and stop writing to page
-        console.log("base64 URL:", base64_url);
         console.log("url LENGTH:", base64_url.length);
         res.write(base64_url);
         res.end();
