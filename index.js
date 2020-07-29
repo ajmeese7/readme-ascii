@@ -67,12 +67,16 @@ app
         console.log("Clicked the 'generate baseUri' button...");
         
         // https://stackoverflow.com/a/61077067/6456163
-        const base64_url = await page.evaluate(async _ => {
+        const base64_url = await page.evaluate(_ => { // async
+          // NOTE: the problem is THIS NEVER RUNS on Heroku!
+            // Testing idea: remove async and while loop;
+            // if this runs then, I can look for a while loop replacemnent
+
           console.log("INSIDE the base64_url const...");
-          // https://stackoverflow.com/a/48602881
-          while (!document.querySelectorAll(".widget-copy")[3]) {
+          // https://stackoverflow.com/a/48602881/6456163
+          /*while (!document.querySelectorAll(".widget-copy")[3]) {
             await new Promise(r => setTimeout(r, 100));
-          }
+          }*/
 
           console.log("AFTER the while loop...");
 
