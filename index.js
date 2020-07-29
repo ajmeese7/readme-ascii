@@ -61,7 +61,6 @@ app
         await page.click('.output [data-toggle="toggle-chain"]');
         await page.waitForSelector(dataUri);
         page.$eval(dataUri, elem => elem.click());
-        console.log("Right before the trouble block...");
 
         // Unique selector for the right copy button. Don't ask questions, just leave it alone. Please.
         await page.waitForSelector("div.tool-chained>div:nth-child(4)>div:nth-child(1)>div:nth-child(2)>div>div:nth-child(2)>div:nth-child(1)>div:nth-child(4)");
@@ -76,7 +75,6 @@ app
         });
 
         // Display URL and stop writing to page
-        console.log("url LENGTH:", base64_url.length);
         res.write(base64_url);
         res.end();
 
