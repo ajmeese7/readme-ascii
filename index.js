@@ -26,7 +26,6 @@ app
         const browser = await puppeteer.launch({args: ['--no-sandbox', '--disable-setuid-sandbox']})
         const page = await browser.newPage()
 
-        // TODO: Either have the res updated before or with a then, so I don't get a loading loop
         await page.goto(ascii_url)
           .catch(err => {
             console.error(err);
@@ -59,8 +58,7 @@ app
         const dataUri = '[data-url="convert-image-to-data-uri"]';
         await page.click('.output [data-toggle="toggle-chain"]');
         await page.waitForSelector(dataUri);
-        await page.waitFor(1250); // TODO: Find a better way!
-        await page.click(dataUri);
+        page.$eval(dataUri, elem => elem.click());
         
         // https://stackoverflow.com/a/61077067/6456163
         const base64_url = await page.evaluate(async _ => {
