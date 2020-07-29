@@ -49,3 +49,4 @@ settings on the site that generates the ASCII
 - Look into the option to create ASCII versions of images
 - Make button be clicked on enter press
 - Stop it from not showing the error png on the second failure
+- Make the site look better on mobile
