@@ -18,6 +18,11 @@ ASCII art is an easy solution to a logo, but it tends to not display well across
 screen sizes. That's why I made this project, to turn the ASCII text into an image that 
 can resize as expected.
 
+The biggest caveat with this project so far is that it doesn't look great on longer strings.
+Even the name of this repository looks pretty bad in ASCII, as you can see. So for now
+just try to stick with concise names, and I'll see what I can whip up in the future. If you
+want an example of one that I think looks pretty good, check out my [profile](https://github.com/ajmeese7)!
+
 ## Usage
 Using this project couldn't be simpler.
 
@@ -33,6 +38,7 @@ If you want to work on this project locally, run the following commands:
 
 1. `npm install` - required initially to download the npm dependencies
 2. `npm run devstart` - runs environment with nodemon, so the server is automatically restarted on changes
+3. Visit `localhost:5000` to interact with it
 
 ### TODOs
 After I get the MVP of this working, there are several things I would like to go back and add.
@@ -41,3 +47,5 @@ Any help doing so would be appreciated :)
 - Include an `Advanced Settings` section that gives users access to more of the
 settings on the site that generates the ASCII
 - Look into the option to create ASCII versions of images
+- Make button be clicked on enter press
+- Stop it from not showing the error png on the second failure
