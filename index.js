@@ -48,10 +48,12 @@ app
         await page.$eval('[data-index="background-color"]', el => el.value = "rgba(255, 255, 255, 0)");
         await page.$eval('[data-index="text-color"]', el => el.value = "rgb(0, 0, 0)");
         await page.$eval('[data-index="font-size"]', el => el.value = "12px");
+        console.log("All options selected...");
 
         // https://github.com/puppeteer/puppeteer/issues/3347#issuecomment-427234299
         const boldCheckbox = '[data-index="bold"]';
         await page.evaluate((boldCheckbox) => document.querySelector(boldCheckbox).click(), boldCheckbox);
+        console.log("Bolded...");
         
         // Places ASCII from other website into the textarea
         await page.$eval('.data-wrapper textarea', (el, input) => el.value = input, ascii);
@@ -62,20 +64,26 @@ app
         await page.click('.output [data-toggle="toggle-chain"]');
         await page.waitForSelector(dataUri);
         page.$eval(dataUri, elem => elem.click());
+        console.log("Clicked the 'generate baseUri' button...");
         
         // https://stackoverflow.com/a/61077067/6456163
         const base64_url = await page.evaluate(async _ => {
+          console.log("INSIDE the base64_url const...");
           // https://stackoverflow.com/a/48602881
           while (!document.querySelectorAll(".widget-copy")[3]) {
             await new Promise(r => setTimeout(r, 100));
           }
 
+          console.log("AFTER the while loop...");
+
           // Press the copy button, which selects the text
           let copy = document.getElementsByClassName("widget-copy")[3];
           copy.click();
+          console.log("Copy button clicked...");
 
           // Get and return the selected text (the base64 URL)
           let selection = window.getSelection().toString();
+          console.log("Gathered selection:", selection);
           return selection;
         });
 
