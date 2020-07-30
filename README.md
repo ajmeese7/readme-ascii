@@ -1,5 +1,5 @@
 # readme-ascii
-![readme-ascii](https://user-images.githubusercontent.com/17814535/88557807-5269fd80-cff0-11ea-9ebd-70c1d67b65af.png)
+![readme-ascii](https://user-images.githubusercontent.com/17814535/88973067-295d9d00-d27c-11ea-8e2b-cb12eed3541d.png)
 
 ![Hits](https://hitcounter.pythonanywhere.com/count/tag.svg?url=https%3A%2F%2Fgithub.com%2Fajmeese7%2Freadme-ascii)
 
@@ -19,9 +19,8 @@ screen sizes. That's why I made this project, to turn the ASCII text into an ima
 can resize as expected.
 
 The biggest caveat with this project so far is that it doesn't look great on longer strings.
-Even the name of this repository looks pretty bad in ASCII, as you can see. So for now
-just try to stick with concise names, and I'll see what I can whip up in the future. If you
-want an example of one that I think looks pretty good, check out my [profile](https://github.com/ajmeese7)!
+So for now just try to stick with concise names, and I'll see what I can whip up in the future. 
+Check out the one on my [profile](https://github.com/ajmeese7)!
 
 ## Usage
 Using this project couldn't be simpler.
