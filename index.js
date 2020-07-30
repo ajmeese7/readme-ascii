@@ -18,11 +18,11 @@ app
       next();
   })
   .get('/generate', function (req, res) {
-      var text_param = req.query.text;
-      console.log("Param:", text_param);
-      var ascii_url = "http://patorjk.com/software/taag/#p=display&f=Alpha&t=" + encodeURIComponent(text_param);
+      let text_param = req.query.text;
+      let textColor = req.query.textColor;
+      let backgroundColor = req.query.backgroundColor;
+      let ascii_url = "http://patorjk.com/software/taag/#p=display&f=Alpha&t=" + encodeURIComponent(text_param);
       if (!text_param) return res.render('error');
-      console.log("Attempting to enter puppeteer...");
 
       (async () => {
         const browser = await puppeteer.launch({args: ['--no-sandbox', '--disable-setuid-sandbox']})
@@ -44,8 +44,8 @@ app
         // Navigate to the ASCII tools site
         await page.goto("https://onlineasciitools.com/convert-ascii-to-image")
         await page.select('[data-index="typeface"]', "monospace")
-        await page.$eval('[data-index="background-color"]', el => el.value = "rgba(255, 255, 255, 0)");
-        await page.$eval('[data-index="text-color"]', el => el.value = "rgb(0, 0, 0)");
+        await page.$eval('[data-index="background-color"]', (el, color) => el.value = color, backgroundColor);
+        await page.$eval('[data-index="text-color"]', (el, color) => el.value = color, textColor);
         await page.$eval('[data-index="font-size"]', el => el.value = "12px");
 
         // https://github.com/puppeteer/puppeteer/issues/3347#issuecomment-427234299
