@@ -2,11 +2,31 @@
 <html>
     <head>
         <title>README ASCII</title>
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" 
-            integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
-        <link rel="stylesheet" href="index.css">
+        
         <script src="index.js"></script>
         <link rel="icon" type="image/png" href="favicon.png">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" 
+        integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/3.2.0/css/bootstrap-colorpicker.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="index.css">
+
+        <script src="//code.jquery.com/jquery-3.4.1.js"></script>
+        <script src="//unpkg.com/bootstrap@4.3.1/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/3.2.0/js/bootstrap-colorpicker.min.js"></script>
+        <script>
+            $(function () {
+                $('#text-color').colorpicker({
+                    color: 'rgb(0, 0, 0)',
+                    format: 'rgba'
+                });
+                $('#background-color').colorpicker({
+                    color: 'rgba(255, 255, 255, 0)',
+                    format: 'rgba'
+                });
+            });
+        </script>
     </head>
 
     <body>
@@ -17,13 +37,38 @@
 
         <div id="userInput">
             <p>Enter your text for ASCII-ification:</p>
-            <input id="asciiText" type="text" required="required" placeholder="README ASCII" />
+            <div id="asciiGroup" class="input-group">
+                <input id="asciiText" class="form-control" type="text" required="required" placeholder="README ASCII" />
+                <div class="input-group-append">
+                  <button id="dropdown" class="btn btn-outline-secondary" type="button">▼</button>
+                </div>
+            </div>
 
-            <button type="button" id="generateButton" class="btn btn-outline-dark" 
+            <!-- Color picker -->
+            <div id="advanced">
+                <div id="text-color" class="input-group" title="Using input value">
+                    <label for="txt-color">Text color</label>
+                    <input id="txt-color" type="text" class="form-control input-lg" value="#DD0F20"/>
+                    <span class="input-group-append">
+                    <span class="input-group-text colorpicker-input-addon"><i></i></span>
+                    </span>
+                </div>
+                <div id="background-color" class="input-group" title="Using input value">
+                    <label for="bg-color">Background color</label>
+                    <input id="bg-color" type="text" class="form-control input-lg" value="#DD0F20"/>
+                    <span class="input-group-append">
+                    <span class="input-group-text colorpicker-input-addon"><i></i></span>
+                    </span>
+                </div>
+            </div>
+
+            <div id="buttons">
+                <button type="button" id="generateButton" class="btn btn-outline-dark" 
                 onclick="generateImage()">Generate Image</button>
-            <a href="#" id="download" download>
-                <button id="downloadButton" type="button" class="btn btn-outline-success">Download</button>
-            </a>
+                <a href="#" id="download" download>
+                    <button id="downloadButton" type="button" class="btn btn-outline-success">Download</button>
+                </a>
+            </div>
         </div>
 
         <div class="d-flex justify-content-center">

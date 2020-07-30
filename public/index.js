@@ -7,10 +7,25 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
     // Disables button if asciiText empty; otherwise enabled
     let asciiText = document.getElementById("asciiText");
-    asciiText.oninput = function() {
+    asciiText.oninput = () => {
         if (!!asciiText.value) return generateButton.disabled = false;
         generateButton.disabled = true;
     };
+
+    // Configures advanced settings dropdown
+    let advanced = document.getElementById("advanced");
+    let dropdown = document.getElementById("dropdown");
+    dropdown.onclick = () => {
+        // https://stackoverflow.com/a/21696585/6456163
+        if (advanced.offsetParent === null) {
+            // TODO: Add a class that animates this transition
+            advanced.style.display = "block";
+            dropdown.innerText = "▲";
+        } else {
+            advanced.style.display = "none";
+            dropdown.innerText = "▼";
+        }
+    }
 });
 
 function generateImage() {
@@ -23,15 +38,18 @@ function generateImage() {
     downloadButton.disabled = true;
 
     let asciiText = document.getElementById("asciiText").value;
-    asciiText = encodeURIComponent(asciiText);
+    let textColor = document.getElementById("txt-color").value;
+    let backgroundColor = document.getElementById("bg-color").value;
+    let url = `/generate?text=${asciiText}&textColor=${textColor}&backgroundColor=${backgroundColor}`;
+    url = encodeURI(url);
 
     let client = new HttpClient();
-    client.get(`/generate?text=${asciiText}`, function(response) {
+    client.get(url, function(response) {
         // Set download href to the image, and the name to the text,
         // but with spaces replaced with underscores
         let download = document.getElementById("download");
         download.href = response;
-        download.download = `${decodeURIComponent(asciiText).split(' ').join('_')}.png`;
+        download.download = `${asciiText.split(' ').join('_')}.png`;
         
         // Allow the download button
         downloadButton.disabled = false;

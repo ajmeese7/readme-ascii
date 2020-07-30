@@ -44,8 +44,7 @@ If you want to work on this project locally, run the following commands:
 After I get the MVP of this working, there are several things I would like to go back and add.
 Any help doing so would be appreciated :)
 
-- Include an `Advanced Settings` section that gives users access to more of the
-settings on the site that generates the ASCII
+- Add more to `Advanced Settings` section
 - Look into the option to create ASCII versions of images
 - Make button be clicked on enter press
 - Stop it from not showing the error png on the second failure
