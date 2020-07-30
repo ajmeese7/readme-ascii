@@ -21,6 +21,7 @@ app
       let text_param = req.query.text;
       let textColor = req.query.textColor;
       let backgroundColor = req.query.backgroundColor;
+      let shadow = req.query.shadow;
       let ascii_url = "http://patorjk.com/software/taag/#p=display&f=Alpha&t=" + encodeURIComponent(text_param);
       if (!text_param) return res.render('error');
 
@@ -47,6 +48,9 @@ app
         await page.$eval('[data-index="background-color"]', (el, color) => el.value = color, backgroundColor);
         await page.$eval('[data-index="text-color"]', (el, color) => el.value = color, textColor);
         await page.$eval('[data-index="font-size"]', el => el.value = "12px");
+
+        if (shadow == "true")
+          await page.$eval('[data-index="text-shadow"]', (el, color) => el.value = `-1ex 0.2pc 6px ${color}`, textColor);
 
         // https://github.com/puppeteer/puppeteer/issues/3347#issuecomment-427234299
         const boldCheckbox = '[data-index="bold"]';

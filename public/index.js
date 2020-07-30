@@ -40,7 +40,8 @@ function generateImage() {
     let asciiText = document.getElementById("asciiText").value;
     let textColor = document.getElementById("txt-color").value;
     let backgroundColor = document.getElementById("bg-color").value;
-    let url = `/generate?text=${asciiText}&textColor=${textColor}&backgroundColor=${backgroundColor}`;
+    let shadow = document.getElementById("shadow").checked;
+    let url = `/generate?text=${asciiText}&textColor=${textColor}&backgroundColor=${backgroundColor}&shadow=${shadow}`;
     url = encodeURI(url);
 
     let client = new HttpClient();
