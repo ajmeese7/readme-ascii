@@ -9,7 +9,7 @@
     "devstart": "nodemon index.js -e js,ejs,json,css"
   },
   "dependencies": {
-    "ejs": "^3.1.9",
+    "ejs": "^3.1.10",
     "express": "4.18.2",
     "puppeteer": "^18.2.1",
     "xmlhttprequest": "1.8.0"
