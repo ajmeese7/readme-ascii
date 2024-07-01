@@ -5,8 +5,8 @@ document.addEventListener("DOMContentLoaded", function (event) {
   const downloadButton = document.getElementById("downloadButton");
   downloadButton.disabled = true;
 
-  // Disables button if asciiText empty; otherwise enabled
-  const asciiText = document.getElementById("asciiText");
+  // Disables button if ascii-text is empty; otherwise enabled
+  const asciiText = document.getElementById("ascii-text");
   asciiText.oninput = () => {
     if (!!asciiText.value) return generateButton.disabled = false;
     generateButton.disabled = true;
@@ -37,11 +37,11 @@ function generateImage() {
   const downloadButton = document.getElementById("downloadButton");
   downloadButton.disabled = true;
 
-  const asciiText = document.getElementById("asciiText").value;
-  const textColor = document.getElementById("txt-color").value;
-  const backgroundColor = document.getElementById("bg-color").value;
-  const shadow = document.getElementById("shadow").checked;
-  const url = encodeURI(`/generate?text=${asciiText}&textColor=${textColor}&backgroundColor=${backgroundColor}&shadow=${shadow}`);
+  const asciiText = document.getElementById("ascii-text").value ?? "Empty";
+  const textColor = document.getElementById("txt-color").value ?? "black";
+  const backgroundColor = document.getElementById("bg-color").value ?? "";
+  const shadow = document.getElementById("shadow").checked ?? false;
+  const url = `/generate?asciiText=${encodeURIComponent(asciiText)}&textColor=${encodeURIComponent(textColor)}&backgroundColor=${encodeURIComponent(backgroundColor)}&shadow=${encodeURIComponent(shadow)}`;
 
   const client = new HttpClient();
   client.get(url, function (response) {

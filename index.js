@@ -1,8 +1,17 @@
 const puppeteer = require("puppeteer");
 const express = require("express");
 const path = require("path");
+const fs = require("fs");
 const PORT = process.env.PORT || 5000;
 const app = express();
+
+// REF: https://stackoverflow.com/a/54817983/6456163
+const debug = async (page) => {
+  // Download the contents of the HTML page to the local file `output.html`
+  const cdp = await page.target().createCDPSession();
+  const { data } = await cdp.send("Page.captureSnapshot", { format: "mhtml" });
+  fs.writeFileSync("debug.mhtml", data);
+}
 
 app
   .use(express.static(path.join(__dirname, "public")))
@@ -18,14 +27,15 @@ app
       next();
   })
   .get("/generate", function (req, res) {
-      const { text_param, textColor, backgroundColor, shadow } = req.query;
-      if (!text_param) return res.render("error");
+      console.debug("GET /generate");
+      const { asciiText, textColor, backgroundColor, shadow } = req.query;
+      if (!asciiText) return res.render("error");
 
       (async () => {
-        const browser = await puppeteer.launch({args: ["--no-sandbox", "--disable-setuid-sandbox"]})
-        const page = await browser.newPage()
+        console.debug("Generating image...");
+        const page = await browser.newPage();
 
-        const ascii_url = "http://patorjk.com/software/taag/#p=display&f=Alpha&t=" + encodeURIComponent(text_param);
+        const ascii_url = "http://patorjk.com/software/taag/#p=display&f=Alpha&t=" + encodeURIComponent(asciiText);
         await page.goto(ascii_url)
           .catch((err) => {
             console.error("Error getting ascii_url page:", err);
@@ -38,8 +48,8 @@ app
         const ascii = await page.$eval("#taag_output_text", (el) => el.textContent);
 
         // Navigate to the ASCII tools site
-        await page.goto("https://onlineasciitools.com/convert-ascii-to-image")
-        await page.select('[data-index="typeface"]', "monospace")
+        await page.goto("https://onlineasciitools.com/convert-ascii-to-image");
+        await page.select('[data-index="typeface"]', "monospace");
         await page.$eval('[data-index="background-color"]', (el, color) => el.value = color, backgroundColor);
         await page.$eval('[data-index="text-color"]', (el, color) => el.value = color, textColor);
         await page.$eval('[data-index="font-size"]', (el) => el.value = "12px");
@@ -78,7 +88,7 @@ app
         res.write(base64_url);
         res.end();
 
-        await browser.close()
+        await browser.close();
       })()
   })
   .get("*", (req, res) => res.render("error"))

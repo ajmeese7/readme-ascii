@@ -37,6 +37,15 @@ If you want to work on this project locally, run the following commands:
 2. `npm run devstart` - runs environment with nodemon, so the server is automatically restarted on changes
 3. Visit `localhost:5000` to interact with it
 
+## Deployment
+This project is currently deployed on Fly.io. If you want to deploy it yourself, you can do so by following these steps:
+1. Create a [Fly.io](https://fly.io/) account
+2. Install the [Fly CLI](https://fly.io/docs/flyctl/install/)
+3. Run `fly launch` in the root directory of this project
+4. Follow the prompts to create a new app
+5. Run `fly deploy` to deploy the app
+6. Visit the URL provided to see your new site!
+
 ### TODOs
 After I get the MVP of this working, there are several things I would like to go back and add.
 Any help doing so would be appreciated :)
