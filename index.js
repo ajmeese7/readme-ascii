@@ -23,67 +23,100 @@ app
       let backgroundColor = req.query.backgroundColor;
       let shadow = req.query.shadow;
       let ascii_url = "http://patorjk.com/software/taag/#p=display&f=Alpha&t=" + encodeURIComponent(text_param);
+      
       if (!text_param) return res.render('error');
 
       (async () => {
-        const browser = await puppeteer.launch({args: ['--no-sandbox', '--disable-setuid-sandbox']})
-        const page = await browser.newPage()
-
-        await page.goto(ascii_url)
-          .catch(err => {
-            console.error(err);
-
-            var obj = { err : err };
-            res.writeHead(404, {"Content-Type": "application/json"}); // Error code
-            res.write(JSON.stringify(obj));
-            res.end();
+        let browser;
+        try {
+          browser = await puppeteer.launch({
+            args: ['--no-sandbox', '--disable-setuid-sandbox'],
+            headless: "new" // Use new headless mode for modern browsers
           });
-        
-        // Get the ASCII from the page
-        const ascii = await page.$eval('#taag_output_text', el => el.textContent);
+          const page = await browser.newPage();
+          
+          // Set a longer timeout for navigation
+          page.setDefaultNavigationTimeout(60000);
 
-        // Navigate to the ASCII tools site
-        await page.goto("https://onlineasciitools.com/convert-ascii-to-image")
-        await page.select('[data-index="typeface"]', "monospace")
-        await page.$eval('[data-index="background-color"]', (el, color) => el.value = color, backgroundColor);
-        await page.$eval('[data-index="text-color"]', (el, color) => el.value = color, textColor);
-        await page.$eval('[data-index="font-size"]', el => el.value = "12px");
+          console.log("Navigating to ASCII generator...");
+          await page.goto(ascii_url);
+          
+          // Wait for the output element to be available
+          await page.waitForSelector('#taag_output_text');
+          
+          // Get the ASCII from the page
+          const ascii = await page.$eval('#taag_output_text', el => el.textContent);
 
-        if (shadow == "true")
-          await page.$eval('[data-index="text-shadow"]', (el, color) => el.value = `-1ex 0.2pc 6px ${color}`, textColor);
+          if (!ascii) {
+            await browser.close();
+            return res.status(500).send("Failed to generate ASCII text");
+          }
 
-        // https://github.com/puppeteer/puppeteer/issues/3347#issuecomment-427234299
-        const boldCheckbox = '[data-index="bold"]';
-        await page.evaluate((boldCheckbox) => document.querySelector(boldCheckbox).click(), boldCheckbox);
-        
-        // Places ASCII from other website into the textarea
-        await page.$eval('.data-wrapper textarea', (el, input) => el.value = input, ascii);
-        await page.type('.data-wrapper textarea', " "); // To make sure input is recognized
+          console.log("Generating image from ASCII...");
+          
+          // Check if background should be transparent
+          const isTransparent = backgroundColor === 'rgba(255, 255, 255, 0)' || 
+                               backgroundColor === 'transparent' ||
+                               backgroundColor.endsWith(', 0)') || 
+                               backgroundColor.endsWith(',0)');
+          
+          // Create an HTML page with the ASCII art styled according to parameters
+          const html = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <style>
+                body {
+                  margin: 0;
+                  padding: 20px;
+                  background-color: ${isTransparent ? 'transparent' : backgroundColor || 'white'};
+                }
+                pre {
+                  font-family: monospace;
+                  color: ${textColor || 'black'};
+                  font-weight: bold;
+                  font-size: 12px;
+                  line-height: 12px;
+                  ${shadow === "true" ? `text-shadow: -1ex 0.2pc 6px ${textColor || 'black'};` : ''}
+                  white-space: pre;
+                }
+              </style>
+            </head>
+            <body>
+              <pre>${ascii}</pre>
+            </body>
+            </html>
+          `;
 
-        // Generate base64 image URL
-        const dataUri = '[data-url="convert-image-to-data-uri"]';
-        await page.click('.output [data-toggle="toggle-chain"]');
-        await page.waitForSelector(dataUri);
-        page.$eval(dataUri, elem => elem.click());
+          // Set the HTML content
+          await page.setContent(html);
+          
+          // Take a screenshot as base64
+          const screenshot = await page.screenshot({
+            encoding: 'base64',
+            omitBackground: isTransparent,
+            fullPage: true,
+            type: 'png'
+          });
+          
+          // Create data URL from screenshot
+          const base64_url = `data:image/png;base64,${screenshot}`;
 
-        // Unique selector for the right copy button. Don't ask questions, just leave it alone. Please.
-        await page.waitForSelector("div.tool-chained>div:nth-child(4)>div:nth-child(1)>div:nth-child(2)>div>div:nth-child(2)>div:nth-child(1)>div:nth-child(4)");
-        const base64_url = await page.evaluate(_ => {
-          // Press the copy button, which selects the text
-          let copy = document.getElementsByClassName("widget-copy")[3];
-          copy.click();
-
-          // Get and return the selected text (the base64 URL)
-          let selection = window.getSelection().toString();
-          return selection;
-        });
-
-        // Display URL and stop writing to page
-        res.write(base64_url);
-        res.end();
-
-        await browser.close()
-      })()
+          // Set content type to JSON and send the data URL
+          res.setHeader('Content-Type', 'text/plain');
+          res.write(base64_url);
+          res.end();
+        } catch (error) {
+          console.error("Unexpected error:", error);
+          if (!res.headersSent) {
+            res.status(500).send("An unexpected error occurred while generating the image");
+          }
+        } finally {
+          if (browser) {
+            await browser.close();
+          }
+        }
+      })();
   })
   .get('*', (req, res) => res.render('error'))
   .listen(PORT, () => console.log(`Listening on ${ PORT }`)) // localhost:5000
