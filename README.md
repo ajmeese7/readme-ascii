@@ -1,48 +1,35 @@
-# readme-ascii
+# Readme Ascii
 ![readme-ascii](https://user-images.githubusercontent.com/17814535/88974985-14ced400-d27f-11ea-83a8-065d86dd8d26.png)
 
-Whenever you're exploring the most successful repositories on GitHub, there is usually
-one thing that stands out the most: **a logo**.
+**readme-ascii** turns a line of ASCII text into a crisp PNG banner—perfect for GitHub READMEs where raw ASCII often wraps awkwardly.
 
-If you go to [Node.js](https://github.com/nodejs/node), right at the top they have
-their fancy logo. It's the same with [Wiki.js](https://github.com/Requarks/wiki),
-[Rust](https://github.com/rust-lang/rust), [Bootstrap](https://github.com/twbs/bootstrap),
-[GitHub Readme Stats](https://github.com/anuraghazra/github-readme-stats),
-[nodemon](https://github.com/remy/nodemon)... the list goes on.
+---
 
-Unfortunately, not all of us have the spare time to spend on a logo. Enter **readme-ascii**.
+## Why use this?
 
-ASCII art is an easy solution to a logo, but it tends to not display well across different 
-screen sizes. That's why I made this project, to turn the ASCII text into an image that 
-can resize as expected.
+| Pain point | What readme-ascii gives you |
+|------------|----------------------------|
+| Raw ASCII breaks on small screens | Generates a **PNG** that scales smoothly |
+| Designing a custom logo takes time | Instant banner: type ➜ generate ➜ download |
+| SVGs sometimes get stripped by GitHub | PNG sidesteps sanitisation and privacy warnings |
 
-The biggest caveat with this project so far is that it doesn't look great on longer strings.
-So for now just try to stick with concise names, and I'll see what I can whip up in the future. 
-Check out the one on my [profile](https://github.com/ajmeese7)!
+---
 
-## Usage
-Using this project couldn't be simpler.
+## Quick start
 
-1. Go to the site
-2. Enter your text
-3. Click "Generate Image"
-4. Wait as your image is created
-5. Download the image
-6. Success!
+1. **Open the generator** (host your fork or use the public demo).  
+2. Enter a short project or profile name.  
+3. Click **Generate Image**.  
+4. Download the PNG and embed it in your README:
 
-## Development
-If you want to work on this project locally, run the following commands:
+### Local development
 
-1. `npm install` - required initially to download the npm dependencies
-2. `npm run devstart` - runs environment with nodemon, so the server is automatically restarted on changes
-3. Visit `localhost:5000` to interact with it
+```bash
+# clone repo, install dependencies, start dev server
+git clone https://github.com/Siruyy/readme-ascii.git
+cd readme-ascii
+npm install          # one-time dependency install
+npm run devstart     # nodemon on http://localhost:5000
+```
 
-### TODOs
-After I get the MVP of this working, there are several things I would like to go back and add.
-Any help doing so would be appreciated :)
-
-- Add more to `Advanced Settings` section
-- Look into the option to create ASCII versions of images
-- Make button be clicked on enter press
-- Stop it from not showing the error png on the second failure
-- Make the site look better on mobile
+<p align="center"> <sub> Forked from <a href="https://github.com/ajmeese7/readme-ascii">ajmeese7/readme-ascii</a> • Maintained &amp; enhanced by <a href="https://github.com/Siruyy">Siruyy</a> </sub> </p>
