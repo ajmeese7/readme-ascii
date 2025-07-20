@@ -41,8 +41,24 @@ function generateImage() {
     let textColor = document.getElementById("txt-color").value;
     let backgroundColor = document.getElementById("bg-color").value;
     let shadow = document.getElementById("shadow").checked;
-    let url = `/generate?text=${asciiText}&textColor=${textColor}&backgroundColor=${backgroundColor}&shadow=${shadow}`;
-    url = encodeURI(url);
+    
+    // Parse color values properly
+    try {
+        // For transparency handling
+        if (backgroundColor.includes('rgba') && backgroundColor.endsWith(', 0)')) {
+            backgroundColor = 'transparent';
+        } else if (!backgroundColor.startsWith('rgb') && !backgroundColor.startsWith('#')) {
+            backgroundColor = '#' + backgroundColor;
+        }
+        
+        if (!textColor.startsWith('rgb') && !textColor.startsWith('#')) {
+            textColor = '#' + textColor;
+        }
+    } catch (e) {
+        console.error('Error parsing colors:', e);
+    }
+    
+    let url = `/generate?text=${encodeURIComponent(asciiText)}&textColor=${encodeURIComponent(textColor)}&backgroundColor=${encodeURIComponent(backgroundColor)}&shadow=${shadow}`;
 
     let client = new HttpClient();
     client.get(url, function(response) {
@@ -69,11 +85,19 @@ var HttpClient = function() {
     this.get = function(aUrl, aCallback) {
         var anHttpRequest = new XMLHttpRequest();
         anHttpRequest.onreadystatechange = function() { 
-            if (anHttpRequest.readyState == 4 && anHttpRequest.status == 200)
-                aCallback(anHttpRequest.responseText);
+            if (anHttpRequest.readyState == 4) {
+                if (anHttpRequest.status == 200) {
+                    aCallback(anHttpRequest.responseText);
+                } else {
+                    console.error('Error generating image:', anHttpRequest.status, anHttpRequest.responseText);
+                    // Hide loader
+                    document.getElementsByClassName("spinner-border")[0].style.display = 'none';
+                    alert('Error generating image. Please try again or use different settings.');
+                }
+            }
         }
 
-        anHttpRequest.open( "GET", aUrl, true );            
-        anHttpRequest.send( null );
+        anHttpRequest.open("GET", aUrl, true);            
+        anHttpRequest.send(null);
     }
 }
