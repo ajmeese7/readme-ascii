@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 function generateImage() {
     // Unhide loader, hide previous image, and disable download
     let spinner = document.getElementsByClassName("spinner-border")[0];
-    spinner.style.display = 'block';
+    spinner.style.display = "block";
     let image = document.getElementById("result");
     image.style.visibility = "hidden";
     let downloadButton = document.getElementById("downloadButton");
@@ -41,23 +41,23 @@ function generateImage() {
     let textColor = document.getElementById("txt-color").value;
     let backgroundColor = document.getElementById("bg-color").value;
     let shadow = document.getElementById("shadow").checked;
-    
+
     // Parse color values properly
     try {
         // For transparency handling
-        if (backgroundColor.includes('rgba') && backgroundColor.endsWith(', 0)')) {
-            backgroundColor = 'transparent';
-        } else if (!backgroundColor.startsWith('rgb') && !backgroundColor.startsWith('#')) {
-            backgroundColor = '#' + backgroundColor;
+        if (backgroundColor.includes("rgba") && backgroundColor.endsWith(", 0)")) {
+            backgroundColor = "transparent";
+        } else if (!backgroundColor.startsWith("rgb") && !backgroundColor.startsWith("#")) {
+            backgroundColor = "#" + backgroundColor;
         }
-        
-        if (!textColor.startsWith('rgb') && !textColor.startsWith('#')) {
-            textColor = '#' + textColor;
+
+        if (!textColor.startsWith("rgb") && !textColor.startsWith("#")) {
+            textColor = "#" + textColor;
         }
     } catch (e) {
-        console.error('Error parsing colors:', e);
+        console.error("Error parsing colors:", e);
     }
-    
+
     let url = `/generate?text=${encodeURIComponent(asciiText)}&textColor=${encodeURIComponent(textColor)}&backgroundColor=${encodeURIComponent(backgroundColor)}&shadow=${shadow}`;
 
     let client = new HttpClient();
@@ -66,17 +66,17 @@ function generateImage() {
         // but with spaces replaced with underscores
         let download = document.getElementById("download");
         download.href = response;
-        download.download = `${asciiText.split(' ').join('_')}.png`;
-        
+        download.download = `${asciiText.split(" ").join("_")}.png`;
+
         // Allow the download button
         downloadButton.disabled = false;
 
         // Set image src to retrieved image and display it
-        image.setAttribute('src', response);
+        image.setAttribute("src", response);
         image.style.visibility = "visible";
 
         // Hide loader
-        spinner.style.display = 'none';
+        spinner.style.display = "none";
     });
 }
 
@@ -84,20 +84,20 @@ function generateImage() {
 var HttpClient = function() {
     this.get = function(aUrl, aCallback) {
         var anHttpRequest = new XMLHttpRequest();
-        anHttpRequest.onreadystatechange = function() { 
+        anHttpRequest.onreadystatechange = function() {
             if (anHttpRequest.readyState == 4) {
                 if (anHttpRequest.status == 200) {
                     aCallback(anHttpRequest.responseText);
                 } else {
-                    console.error('Error generating image:', anHttpRequest.status, anHttpRequest.responseText);
+                    console.error("Error generating image:", anHttpRequest.status, anHttpRequest.responseText);
                     // Hide loader
-                    document.getElementsByClassName("spinner-border")[0].style.display = 'none';
-                    alert('Error generating image. Please try again or use different settings.');
+                    document.getElementsByClassName("spinner-border")[0].style.display = "none";
+                    alert("Error generating image. Please try again or use different settings.");
                 }
             }
         }
 
-        anHttpRequest.open("GET", aUrl, true);            
+        anHttpRequest.open("GET", aUrl, true);
         anHttpRequest.send(null);
     }
 }

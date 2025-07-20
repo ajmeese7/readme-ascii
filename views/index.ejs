@@ -2,12 +2,12 @@
 <html>
     <head>
         <title>README ASCII</title>
-        
+
         <script src="index.js"></script>
         <link rel="icon" type="image/png" href="favicon.png">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" 
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
         integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
         <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/3.2.0/css/bootstrap-colorpicker.min.css" rel="stylesheet">
         <link rel="stylesheet" href="index.css">
@@ -21,19 +21,19 @@
         <script>
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
+            gtag("js", new Date());
 
-            gtag('config', 'UA-175570657-1');
+            gtag("config", "UA-175570657-1");
 
             // Prepare the color picker library
             $(function () {
-                $('#text-color').colorpicker({
-                    color: 'rgb(0, 0, 0)',
-                    format: 'rgba'
+                $("#text-color").colorpicker({
+                    color: "rgb(0, 0, 0)",
+                    format: "rgba"
                 });
-                $('#background-color').colorpicker({
-                    color: 'rgba(255, 255, 255, 0)',
-                    format: 'rgba'
+                $("#background-color").colorpicker({
+                    color: "rgba(255, 255, 255, 0)",
+                    format: "rgba"
                 });
             });
         </script>
@@ -41,7 +41,7 @@
 
     <body>
         <a href="https://github.com/ajmeese7/readme-ascii">
-            <img src="https://user-images.githubusercontent.com/17814535/88975752-6166df00-d280-11ea-88e8-801e0c7c19d5.png" 
+            <img src="https://user-images.githubusercontent.com/17814535/88975752-6166df00-d280-11ea-88e8-801e0c7c19d5.png"
                 id="banner" alt="README ASCII" />
         </a>
 
@@ -75,7 +75,7 @@
             </div>
 
             <div id="buttons">
-                <button type="button" id="generateButton" class="btn btn-outline-dark" 
+                <button type="button" id="generateButton" class="btn btn-outline-dark"
                 onclick="generateImage()">Generate Image</button>
                 <a href="#" id="download" download>
                     <button id="downloadButton" type="button" class="btn btn-outline-success">Download</button>
