@@ -17,36 +17,34 @@
 
 ## Quick start
 
-1. **Open the generator** (host your fork or use the public demo).
+1. Open the [hosted demo](https://ajmeese7.github.io/readme-ascii/), or your fork's GitHub Pages URL.
 2. Enter a short project or profile name.
-3. Click **Generate Image**.
-4. Download the PNG and embed it in your README:
+3. (Optional) open the advanced settings to tweak text color, background color, or shadow.
+4. Click **Generate Image**, then **Download**.
 
 ### Local development
 
-```bash
-# clone repo, install dependencies, start dev server
-git clone https://github.com/ajmeese7/readme-ascii.git
-cd readme-ascii
-npm install          # one-time dependency install
-npm run devstart     # nodemon on http://localhost:5000
-```
-
-### Troubleshooting
-
-If you encounter issues with Puppeteer, such as missing shared libraries, you may need to install the required dependencies for Chromium on Linux. Use the following command to install all necessary libraries:
+Pure static site, no build step. Either:
 
 ```bash
-sudo apt-get update && sudo apt-get install -y \
-  ca-certificates fonts-liberation libasound2 libatk-bridge2.0-0 libatk1.0-0 \
-  libc6 libcairo2 libcups2 libdbus-1-3 libexpat1 libfontconfig1 libgbm1 \
-  libgcc1 libglib2.0-0 libgtk-3-0 libnspr4 libnss3 libpango-1.0-0 \
-  libpangocairo-1.0-0 libstdc++6 libx11-6 libx11-xcb1 libxcb1 libxcomposite1 \
-  libxcursor1 libxdamage1 libxext6 libxfixes3 libxi6 libxrandr2 libxrender1 \
-  libxss1 libxtst6 lsb-release wget xdg-utils
+# Open the file directly
+xdg-open index.html
+
+# Or serve over HTTP (recommended; some browsers restrict figlet's font fetch under file://)
+npx serve .
 ```
 
-If `libasound2` gives you problems, replace it with `libasound2t64` in the command above. For more details, refer to Puppeteer's [troubleshooting guide](https://pptr.dev/troubleshooting).
+## Deployment
+
+`master` is auto-deployed to the `gh-pages` branch by `.github/workflows/deploy.yml` on every push. Enable Pages once in repo settings:
+
+> Settings ➜ Pages ➜ Build and deployment ➜ Source: **Deploy from a branch** ➜ Branch: `gh-pages` / `(root)`
+
+The site lives at `https://<user>.github.io/readme-ascii/`.
+
+## Analytics
+
+The hosted site reports to a GA4 property owned by [@ajmeese7](https://github.com/ajmeese7). To wire up your own analytics, follow [docs/GA4_SETUP.md](docs/GA4_SETUP.md).
 
 -----
 
@@ -54,7 +52,7 @@ If `libasound2` gives you problems, replace it with `libasound2t64` in the comma
 After I get the MVP of this working, there are several things I would like to go back and add.
 Any help doing so would be appreciated :)
 
-- Add more to `Advanced Settings` section
+- Add more to `Advanced Settings` section (font picker is the obvious next step)
 - Look into the option to create ASCII versions of images
 - Make button be clicked on enter press
 - Stop it from not showing the error png on the second failure
