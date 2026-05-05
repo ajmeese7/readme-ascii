@@ -9,6 +9,13 @@ document.addEventListener("DOMContentLoaded", function() {
         generateButton.disabled = !asciiText.value;
     };
 
+    const form = document.getElementById("userInput");
+    form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        if (generateButton.disabled) return;
+        generateImage();
+    });
+
     const advanced = document.getElementById("advanced");
     const dropdown = document.getElementById("dropdown");
     dropdown.onclick = () => {
@@ -90,10 +97,15 @@ function generateImage() {
     const transparent = isTransparent(rawBackgroundColor);
     const backgroundColor = transparent ? "transparent" : normalizeColor(rawBackgroundColor, "#FFFFFF");
 
+    const showError = () => {
+        image.setAttribute("src", "error.png");
+        image.style.visibility = "visible";
+        spinner.style.display = "none";
+    };
+
     figlet.text(asciiText, { font: "Alpha" }, (err, ascii) => {
         if (err || !ascii) {
-            spinner.style.display = "none";
-            alert("Error generating ASCII. Please try again or use different settings.");
+            showError();
             return;
         }
 
@@ -101,8 +113,7 @@ function generateImage() {
         try {
             pngUrl = asciiToPng(ascii, { textColor, backgroundColor, shadow, transparent });
         } catch (e) {
-            spinner.style.display = "none";
-            alert("Error rendering image. Please try again or use different settings.");
+            showError();
             return;
         }
 

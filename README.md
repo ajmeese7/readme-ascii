@@ -54,5 +54,4 @@ Any help doing so would be appreciated :)
 
 - Add more to `Advanced Settings` section (font picker is the obvious next step)
 - Look into the option to create ASCII versions of images
-- Stop it from not showing the error png on the second failure
 - Make the site look better on mobile
