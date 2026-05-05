@@ -36,11 +36,11 @@ npx serve .
 
 ## Deployment
 
-`master` is auto-deployed to the `gh-pages` branch by `.github/workflows/deploy.yml` on every push. Enable Pages once in repo settings:
+GitHub Pages serves the repo root directly. No build step, no separate branch, no CI. Enable it once in repo settings:
 
-> Settings ➜ Pages ➜ Build and deployment ➜ Source: **Deploy from a branch** ➜ Branch: `gh-pages` / `(root)`
+> Settings ➜ Pages ➜ Build and deployment ➜ Source: **Deploy from a branch** ➜ Branch: `master` / `(root)`
 
-The site lives at `https://<user>.github.io/readme-ascii/`.
+Every push to `master` republishes the site at `https://<user>.github.io/readme-ascii/` within ~30 seconds.
 
 ## Analytics
 
