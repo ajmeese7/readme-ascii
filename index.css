@@ -1,0 +1,79 @@
+/* Everything that needs to be centered */
+body,
+button,
+img,
+#userInput {
+    margin: auto;
+    display: table !important;
+}
+
+body {
+    max-width: 1000px;
+}
+
+#banner, #result {
+    max-width: 80%;
+    margin-top: 25px;
+}
+@media screen and (max-width: 1000px) {
+    #banner, #result {
+        max-width: 95%;
+    }
+}
+
+#userInput {
+    margin-top: 50px !important;
+}
+#asciiText {
+    padding: 5px;
+}
+button {
+    display: inline !important;
+}
+#buttons {
+    margin-top: 5px;
+}
+#download {
+    display: inline-block;
+}
+#download:hover {
+    text-decoration: none;
+}
+button:disabled {
+    cursor: not-allowed;
+}
+.btn-outline-dark.focus, .btn-outline-dark:focus {
+    /* Override the Bootstrap default; 0.2rem is too thick */
+    box-shadow: 0 0 0 0.1rem rgba(52,58,64,.5);
+}
+
+#advanced {
+    display: none;
+    width: 243px;
+}
+.input-group>.form-control {
+    flex: none !important;
+}
+.form-control {
+    width: 200px !important;
+}
+label {
+    font-weight: 500;
+    margin-bottom: .3rem;
+}
+label[for=txt-color] {
+    margin-top: 5px;
+}
+#asciiGroup {
+    width: 266px;
+    margin: auto;
+}
+#background-color {
+    margin-top: 5px;
+    margin-bottom: 7.5px;
+}
+
+.spinner-border {
+    margin-top: 60px;
+    display: none;
+}
