@@ -50,7 +50,7 @@
                 id="banner" alt="README ASCII" />
         </a>
 
-        <div id="userInput">
+        <form id="userInput">
             <p>Enter your text for ASCII-ification:</p>
             <div id="asciiGroup" class="input-group">
                 <input id="asciiText" class="form-control" type="text" required="required" placeholder="README ASCII" />
@@ -80,19 +80,18 @@
             </div>
 
             <div id="buttons">
-                <button type="button" id="generateButton" class="btn btn-outline-dark"
-                onclick="generateImage()">Generate Image</button>
+                <button type="submit" id="generateButton" class="btn btn-outline-dark">Generate Image</button>
                 <a href="#" id="download" download>
                     <button id="downloadButton" type="button" class="btn btn-outline-success">Download</button>
                 </a>
             </div>
-        </div>
+        </form>
 
         <div class="d-flex justify-content-center">
             <div class="spinner-border" role="status">
               <span class="sr-only">Loading...</span>
             </div>
         </div>
-        <img id="result" onError="this.onerror=null;this.src='error.png';" />
+        <img id="result" />
     </body>
 </html>
