@@ -1,79 +1,114 @@
-/* Everything that needs to be centered */
-body,
-button,
-img,
-#userInput {
-    margin: auto;
-    display: table !important;
-}
-
 body {
     max-width: 1000px;
+    margin: 0 auto;
+    padding: 16px;
+}
+
+body > a {
+    display: block;
 }
 
 #banner, #result {
-    max-width: 80%;
-    margin-top: 25px;
-}
-@media screen and (max-width: 1000px) {
-    #banner, #result {
-        max-width: 95%;
-    }
+    display: block;
+    margin: 25px auto 0;
+    max-width: 100%;
+    height: auto;
 }
 
 #userInput {
-    margin-top: 50px !important;
+    width: fit-content;
+    max-width: 100%;
+    margin: 40px auto 0;
 }
+
 #asciiText {
     padding: 5px;
 }
-button {
-    display: inline !important;
+
+#asciiGroup {
+    width: 266px;
+    max-width: 100%;
+    margin: 0 auto;
 }
-#buttons {
+
+/* Override the global .form-control 200px so the ASCII input fills its group;
+   color-picker inputs still want 200px for the swatch addon to line up. */
+#asciiGroup > #asciiText {
+    width: auto !important;
+    flex: 1 1 auto !important;
+}
+
+.input-group > .form-control {
+    flex: none !important;
+}
+
+.form-control {
+    width: 200px !important;
+    max-width: 100%;
+}
+
+label {
+    font-weight: 500;
+    margin-bottom: .3rem;
+}
+
+label[for=txt-color] {
     margin-top: 5px;
-}
-#download {
-    display: inline-block;
-}
-#download:hover {
-    text-decoration: none;
-}
-button:disabled {
-    cursor: not-allowed;
-}
-.btn-outline-dark.focus, .btn-outline-dark:focus {
-    /* Override the Bootstrap default; 0.2rem is too thick */
-    box-shadow: 0 0 0 0.1rem rgba(52,58,64,.5);
 }
 
 #advanced {
     display: none;
     width: 243px;
+    max-width: 100%;
+    margin: 0 auto;
 }
-.input-group>.form-control {
-    flex: none !important;
-}
-.form-control {
-    width: 200px !important;
-}
-label {
-    font-weight: 500;
-    margin-bottom: .3rem;
-}
-label[for=txt-color] {
-    margin-top: 5px;
-}
-#asciiGroup {
-    width: 266px;
-    margin: auto;
-}
+
 #background-color {
     margin-top: 5px;
     margin-bottom: 7.5px;
 }
 
+#buttons {
+    width: 266px;
+    max-width: 100%;
+    margin: 12px auto 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+#download {
+    display: block;
+}
+
+#download:hover {
+    text-decoration: none;
+}
+
+#buttons button, #download button {
+    width: 100%;
+    display: block;
+}
+
+button:disabled {
+    cursor: not-allowed;
+}
+
+.btn-outline-dark.focus, .btn-outline-dark:focus {
+    /* Override the Bootstrap default; 0.2rem is too thick */
+    box-shadow: 0 0 0 0.1rem rgba(52,58,64,.5);
+}
+
 .spinner-border {
     margin-top: 60px;
     display: none;
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 12px;
+    }
+    #userInput {
+        margin-top: 24px;
+    }
 }
