@@ -1,19 +1,25 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
         <title>README ASCII</title>
 
         <link rel="icon" type="image/png" href="favicon.png">
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
-        integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/3.2.0/css/bootstrap-colorpicker.min.css" rel="stylesheet">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="index.css">
 
-        <script src="//code.jquery.com/jquery-3.4.1.js"></script>
-        <script src="//unpkg.com/bootstrap@4.3.1/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/3.2.0/js/bootstrap-colorpicker.min.js"></script>
+        <script>
+            // Apply saved theme before paint to avoid flash-of-wrong-theme.
+            (function() {
+                try {
+                    var saved = localStorage.getItem("theme");
+                    if (saved === "dark" || saved === "light") {
+                        document.documentElement.setAttribute("data-theme", saved);
+                    } else if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+                        document.documentElement.setAttribute("data-theme", "dark");
+                    }
+                } catch (e) {}
+            })();
+        </script>
 
         <script src="https://cdn.jsdelivr.net/npm/figlet@1/lib/figlet.js"></script>
         <script>
@@ -30,21 +36,18 @@
         </script>
 
         <script src="index.js"></script>
-        <script>
-            $(function () {
-                $("#text-color").colorpicker({
-                    color: "rgb(0, 0, 0)",
-                    format: "rgba"
-                });
-                $("#background-color").colorpicker({
-                    color: "rgba(255, 255, 255, 0)",
-                    format: "rgba"
-                });
-            });
-        </script>
     </head>
 
     <body>
+        <button id="themeToggle" type="button" aria-label="Toggle light/dark theme">🌙</button>
+        <script>
+            // Set the toggle glyph synchronously so it matches the pre-paint theme.
+            (function() {
+                var btn = document.getElementById("themeToggle");
+                if (btn) btn.textContent = document.documentElement.getAttribute("data-theme") === "dark" ? "☀️" : "🌙";
+            })();
+        </script>
+
         <a href="https://github.com/ajmeese7/readme-ascii">
             <img src="https://user-images.githubusercontent.com/17814535/88975752-6166df00-d280-11ea-88e8-801e0c7c19d5.png"
                 id="banner" alt="README ASCII" />
@@ -52,17 +55,14 @@
 
         <form id="userInput">
             <p>Enter your text for ASCII-ification:</p>
-            <div id="asciiGroup" class="input-group">
-                <input id="asciiText" class="form-control" type="text" required="required" placeholder="README ASCII" />
-                <div class="input-group-append">
-                  <button id="dropdown" class="btn btn-outline-secondary" type="button">▼</button>
-                </div>
+            <div id="asciiGroup">
+                <input id="asciiText" type="text" required placeholder="README ASCII" />
+                <button id="dropdown" class="btn btn-secondary" type="button" aria-label="Toggle advanced settings">▼</button>
             </div>
 
-            <!-- Color picker -->
             <div id="advanced">
                 <label for="font">Font</label>
-                <select id="font" class="form-control">
+                <select id="font">
                     <option value="Alpha" selected>Alpha</option>
                     <option value="ANSI Shadow">ANSI Shadow</option>
                     <option value="Banner3">Banner3</option>
@@ -81,36 +81,32 @@
                     <option value="Star Wars">Star Wars</option>
                 </select>
 
-                <div id="text-color" class="input-group" title="Using input value">
-                    <label for="txt-color">Text color</label>
-                    <input id="txt-color" type="text" class="form-control input-lg" value="#DD0F20"/>
-                    <span class="input-group-append">
-                    <span class="input-group-text colorpicker-input-addon"><i></i></span>
-                    </span>
+                <label for="txt-color">Text color</label>
+                <input id="txt-color" type="color" value="#000000" />
+
+                <label for="bg-color">Background color</label>
+                <input id="bg-color" type="color" value="#ffffff" disabled />
+
+                <div class="checkbox-row">
+                    <input type="checkbox" id="transparent-bg" checked>
+                    <label for="transparent-bg">Transparent background</label>
                 </div>
-                <div id="background-color" class="input-group" title="Using input value">
-                    <label for="bg-color">Background color</label>
-                    <input id="bg-color" type="text" class="form-control input-lg" value="#DD0F20"/>
-                    <span class="input-group-append">
-                    <span class="input-group-text colorpicker-input-addon"><i></i></span>
-                    </span>
+                <div class="checkbox-row">
+                    <input type="checkbox" id="shadow">
+                    <label for="shadow">Enable shadow</label>
                 </div>
-                <input type="checkbox" name="shadow" id="shadow" aria-label="Checkbox for shadow">
-                <label for="shadow">Enable Shadow</label>
             </div>
 
             <div id="buttons">
                 <a href="#" id="download" download>
-                    <button id="downloadButton" type="button" class="btn btn-outline-success">Download</button>
+                    <button id="downloadButton" class="btn btn-success" type="button">Download</button>
                 </a>
             </div>
         </form>
 
-        <div class="d-flex justify-content-center">
-            <div class="spinner-border" role="status">
-              <span class="sr-only">Loading...</span>
-            </div>
+        <div class="spinner-container">
+            <div class="spinner" role="status" aria-label="Loading"></div>
         </div>
-        <img id="result" style="visibility: hidden" />
+        <img id="result" alt="" style="visibility: hidden" />
     </body>
 </html>
