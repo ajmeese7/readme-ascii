@@ -64,11 +64,23 @@ body > a {
     display: block;
 }
 
-#banner, #result {
+.banner, #result {
     display: block;
     margin: 25px auto 0;
     max-width: 100%;
     height: auto;
+}
+
+.banner-dark {
+    display: none;
+}
+
+[data-theme="dark"] .banner-light {
+    display: none;
+}
+
+[data-theme="dark"] .banner-dark {
+    display: block;
 }
 
 #userInput {
