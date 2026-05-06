@@ -61,6 +61,26 @@
 
             <!-- Color picker -->
             <div id="advanced">
+                <label for="font">Font</label>
+                <select id="font" class="form-control">
+                    <option value="Alpha" selected>Alpha</option>
+                    <option value="ANSI Shadow">ANSI Shadow</option>
+                    <option value="Banner3">Banner3</option>
+                    <option value="Big">Big</option>
+                    <option value="Block">Block</option>
+                    <option value="Bloody">Bloody</option>
+                    <option value="Colossal">Colossal</option>
+                    <option value="Doom">Doom</option>
+                    <option value="DOS Rebel">DOS Rebel</option>
+                    <option value="Ghost">Ghost</option>
+                    <option value="Larry 3D">Larry 3D</option>
+                    <option value="Roman">Roman</option>
+                    <option value="Shadow">Shadow</option>
+                    <option value="Slant">Slant</option>
+                    <option value="Standard">Standard</option>
+                    <option value="Star Wars">Star Wars</option>
+                </select>
+
                 <div id="text-color" class="input-group" title="Using input value">
                     <label for="txt-color">Text color</label>
                     <input id="txt-color" type="text" class="form-control input-lg" value="#DD0F20"/>
@@ -80,7 +100,6 @@
             </div>
 
             <div id="buttons">
-                <button type="submit" id="generateButton" class="btn btn-outline-dark">Generate Image</button>
                 <a href="#" id="download" download>
                     <button id="downloadButton" type="button" class="btn btn-outline-success">Download</button>
                 </a>
@@ -92,6 +111,6 @@
               <span class="sr-only">Loading...</span>
             </div>
         </div>
-        <img id="result" />
+        <img id="result" style="visibility: hidden" />
     </body>
 </html>

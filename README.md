@@ -45,13 +45,3 @@ Every push to `master` republishes the site at `https://<user>.github.io/readme-
 ## Analytics
 
 The hosted site reports to a GA4 property owned by [@ajmeese7](https://github.com/ajmeese7). To wire up your own analytics, follow [docs/GA4_SETUP.md](docs/GA4_SETUP.md).
-
------
-
-### TODOs
-After I get the MVP of this working, there are several things I would like to go back and add.
-Any help doing so would be appreciated :)
-
-- Add more to `Advanced Settings` section (font picker is the obvious next step)
-- Look into the option to create ASCII versions of images
-- Make the site look better on mobile

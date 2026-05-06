@@ -1,18 +1,37 @@
+const DEBOUNCE_MS = 200;
+const SPINNER_DELAY_MS = 300;
+
+let debounceHandle = null;
+let currentGenId = 0;
+
 document.addEventListener("DOMContentLoaded", function() {
-    const generateButton = document.getElementById("generateButton");
-    generateButton.disabled = true;
     const downloadButton = document.getElementById("downloadButton");
     downloadButton.disabled = true;
 
     const asciiText = document.getElementById("asciiText");
-    asciiText.oninput = () => {
-        generateButton.disabled = !asciiText.value;
+
+    const schedulePreview = () => {
+        if (debounceHandle) clearTimeout(debounceHandle);
+        if (!asciiText.value) {
+            clearPreview();
+            return;
+        }
+        debounceHandle = setTimeout(generateImage, DEBOUNCE_MS);
     };
+
+    asciiText.addEventListener("input", schedulePreview);
+    document.getElementById("font").addEventListener("change", schedulePreview);
+    document.getElementById("shadow").addEventListener("change", schedulePreview);
+    document.getElementById("txt-color").addEventListener("input", schedulePreview);
+    document.getElementById("bg-color").addEventListener("input", schedulePreview);
+    // Colorpicker plugin sets values programmatically, so listen for its event too.
+    $("#text-color, #background-color").on("colorpickerChange", schedulePreview);
 
     const form = document.getElementById("userInput");
     form.addEventListener("submit", (event) => {
         event.preventDefault();
-        if (generateButton.disabled) return;
+        if (!asciiText.value) return;
+        if (debounceHandle) clearTimeout(debounceHandle);
         generateImage();
     });
 
@@ -28,6 +47,17 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     };
 });
+
+function clearPreview() {
+    currentGenId++; // invalidate any in-flight generation
+    const image = document.getElementById("result");
+    const downloadButton = document.getElementById("downloadButton");
+    const spinner = document.getElementsByClassName("spinner-border")[0];
+    image.removeAttribute("src");
+    image.style.visibility = "hidden";
+    downloadButton.disabled = true;
+    spinner.style.display = "none";
+}
 
 function isTransparent(color) {
     if (!color) return false;
@@ -80,30 +110,46 @@ function asciiToPng(ascii, { textColor, backgroundColor, shadow, transparent }) 
 }
 
 function generateImage() {
+    const genId = ++currentGenId;
     const spinner = document.getElementsByClassName("spinner-border")[0];
     const image = document.getElementById("result");
     const downloadButton = document.getElementById("downloadButton");
 
-    spinner.style.display = "block";
-    image.style.visibility = "hidden";
-    downloadButton.disabled = true;
+    // Only show the spinner if generation is slow (e.g. first-time font fetch).
+    // Fast regens skip the flicker entirely and just swap the image when ready.
+    const spinnerDelay = setTimeout(() => {
+        if (genId === currentGenId) {
+            spinner.style.display = "block";
+            image.style.visibility = "hidden";
+        }
+    }, SPINNER_DELAY_MS);
 
     const asciiText = document.getElementById("asciiText").value;
     const rawTextColor = document.getElementById("txt-color").value;
     const rawBackgroundColor = document.getElementById("bg-color").value;
     const shadow = document.getElementById("shadow").checked;
+    const font = document.getElementById("font").value || "Alpha";
 
     const textColor = normalizeColor(rawTextColor, "#000000");
     const transparent = isTransparent(rawBackgroundColor);
     const backgroundColor = transparent ? "transparent" : normalizeColor(rawBackgroundColor, "#FFFFFF");
 
-    const showError = () => {
-        image.setAttribute("src", "error.png");
-        image.style.visibility = "visible";
+    const finish = () => {
+        clearTimeout(spinnerDelay);
         spinner.style.display = "none";
     };
 
-    figlet.text(asciiText, { font: "Alpha" }, (err, ascii) => {
+    const showError = () => {
+        if (genId !== currentGenId) return;
+        finish();
+        image.setAttribute("src", "error.png");
+        image.style.visibility = "visible";
+        downloadButton.disabled = true;
+    };
+
+    figlet.text(asciiText, { font }, (err, ascii) => {
+        if (genId !== currentGenId) return;
+
         if (err || !ascii) {
             showError();
             return;
@@ -117,6 +163,9 @@ function generateImage() {
             return;
         }
 
+        if (genId !== currentGenId) return;
+        finish();
+
         const download = document.getElementById("download");
         download.href = pngUrl;
         download.download = `${asciiText.split(" ").join("_")}.png`;
@@ -124,6 +173,5 @@ function generateImage() {
         downloadButton.disabled = false;
         image.setAttribute("src", pngUrl);
         image.style.visibility = "visible";
-        spinner.style.display = "none";
     });
 }
