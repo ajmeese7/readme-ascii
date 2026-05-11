@@ -402,6 +402,69 @@ input[type="color"]:disabled {
     position: absolute;
 }
 
+/* --- Font focus (theater) panel --- */
+#fontFocus {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--panel-bg);
+}
+
+/* ID specificity overrides UA [hidden]; re-assert explicitly. */
+#fontFocus[hidden],
+#fontGrid[hidden] {
+    display: none;
+}
+
+.font-focus-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.font-focus-label {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--fg);
+}
+
+.font-focus-close {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid var(--input-border);
+    background: transparent;
+    color: var(--fg);
+    font-size: 15px;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+    flex-shrink: 0;
+}
+
+.font-focus-close:hover {
+    background: var(--btn-hover-bg);
+    color: var(--btn-hover-fg);
+}
+
+.font-focus-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: auto;
+}
+
+.font-focus-image img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
 /* --- Mobile --- */
 @media (max-width: 720px) {
     .app {

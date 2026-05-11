@@ -7,6 +7,7 @@ const COMPARE_CONCURRENCY = 4;
 let debounceHandle = null;
 let currentGenId = 0;
 let compareOpen = false;
+let focusedFont = null;
 
 document.addEventListener("DOMContentLoaded", function() {
     initTheme();
@@ -25,6 +26,7 @@ document.addEventListener("DOMContentLoaded", function() {
         if (!asciiText.value) {
             if (compareOpen) {
                 currentGenId++;
+                closeFocus();
                 document.getElementById("fontGrid").innerHTML = "";
             } else {
                 clearPreview();
@@ -60,6 +62,21 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     document.getElementById("compareButton").addEventListener("click", toggleCompare);
+
+    // Keep the focused-font overlay in sync if the dropdown is used directly.
+    document.getElementById("font").addEventListener("change", () => {
+        if (focusedFont) {
+            focusedFont = document.getElementById("font").value;
+            const label = document.querySelector("#fontFocus .font-focus-label");
+            if (label) label.textContent = focusedFont;
+        }
+    });
+
+    const fontFocus = document.getElementById("fontFocus");
+    fontFocus.querySelector(".font-focus-close").addEventListener("click", closeFocus);
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && !fontFocus.hidden) closeFocus();
+    });
 
     const themeToggle = document.getElementById("themeToggle");
     themeToggle.addEventListener("click", () => {
@@ -388,6 +405,7 @@ async function renderFontGrid() {
                 img.alt = font;
                 img.src = pngUrl;
                 preview.appendChild(img);
+                if (focusedFont === font) setFocusImage(font, pngUrl);
             } catch (e) {
                 if (genId !== currentGenId) return;
                 preview.classList.remove("loading");
@@ -413,6 +431,7 @@ function openCompare() {
 function closeCompare() {
     compareOpen = false;
     currentGenId++; // invalidate any in-flight grid renders
+    closeFocus();
     const grid = document.getElementById("fontGrid");
     grid.hidden = true;
     grid.innerHTML = "";
@@ -432,6 +451,39 @@ function toggleCompare() {
 function selectFont(font) {
     document.getElementById("font").value = font;
     saveFormState();
-    closeCompare();
-    if (document.getElementById("asciiText").value) generateImage();
+    document.querySelectorAll(".font-card").forEach(c => {
+        c.classList.toggle("active", c.dataset.font === font);
+    });
+    const card = document.querySelector(`.font-card[data-font="${CSS.escape(font)}"]`);
+    const img = card && card.querySelector(".font-card-preview img");
+    openFocus(font, img ? img.src : null);
+}
+
+function openFocus(font, imgSrc) {
+    focusedFont = font;
+    const overlay = document.getElementById("fontFocus");
+    overlay.querySelector(".font-focus-label").textContent = font;
+    setFocusImage(font, imgSrc);
+    overlay.hidden = false;
+}
+
+function setFocusImage(font, imgSrc) {
+    if (focusedFont !== font) return;
+    const wrap = document.querySelector("#fontFocus .font-focus-image");
+    if (!wrap) return;
+    wrap.innerHTML = "";
+    if (!imgSrc) return;
+    const img = document.createElement("img");
+    img.alt = font;
+    img.src = imgSrc;
+    wrap.appendChild(img);
+}
+
+function closeFocus() {
+    focusedFont = null;
+    const overlay = document.getElementById("fontFocus");
+    if (!overlay) return;
+    overlay.hidden = true;
+    overlay.querySelector(".font-focus-label").textContent = "";
+    overlay.querySelector(".font-focus-image").innerHTML = "";
 }

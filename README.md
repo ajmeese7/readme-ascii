@@ -18,20 +18,30 @@
 ## Quick start
 
 1. Open the [hosted demo](https://ajmeese7.github.io/readme-ascii/), or your fork's GitHub Pages URL.
-2. Enter a short project or profile name.
-3. (Optional) open the advanced settings to tweak text color, background color, or shadow.
-4. Click **Generate Image**, then **Download**.
+2. Enter your text in the sidebar. The preview updates live as you type.
+3. Tweak font, text color, background color, transparency, and shadow.
+4. Click **Compare fonts** to see the same text rendered across every available font; click a card to promote it into an inline theater preview and select that font.
+5. Click **Download** to save the PNG.
 
 ### Local development
 
-Pure static site, no build step. Either:
+Runtime is a pure static site (no build step). The dev toolchain is Node-only:
 
 ```bash
-# Open the file directly
-xdg-open index.html
+npm install
+npm start        # serves the site at http://localhost:8123/
+```
 
-# Or serve over HTTP (recommended; some browsers restrict figlet's font fetch under file://)
-npx serve .
+(`npm start` runs [`serve`](https://www.npmjs.com/package/serve). You can also open `index.html` directly, but some browsers restrict figlet's font fetch under `file://`.)
+
+### Tests
+
+End-to-end tests cover the live preview, compare grid, and theater focus panel. They use Playwright and start their own static server on port `8124`:
+
+```bash
+npx playwright install chromium  # one-time browser download
+npm test                          # headless
+npm run test:headed               # watch in a browser window
 ```
 
 ## Deployment
