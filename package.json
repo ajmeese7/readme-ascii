@@ -1,0 +1,15 @@
+{
+  "name": "readme-ascii",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Static site, no build step. Node tooling is dev-only (serve + Playwright).",
+  "scripts": {
+    "start": "serve . -l 8123",
+    "test": "playwright test",
+    "test:headed": "playwright test --headed"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0",
+    "serve": "^14.2.4"
+  }
+}

@@ -1,10 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>README ASCII</title>
+        <meta charset="utf-8">
+        <title>readme-ascii, ASCII art banner generator</title>
 
         <link rel="icon" type="image/png" href="favicon.png">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <meta name="description" content="Turn a line of text into a crisp PNG banner, perfect for GitHub READMEs. Live preview, font picker, light or dark themes.">
+
+        <link rel="canonical" href="https://ajmeese7.github.io/readme-ascii/">
+        <meta property="og:type" content="website">
+        <meta property="og:site_name" content="readme-ascii">
+        <meta property="og:title" content="readme-ascii">
+        <meta property="og:description" content="Turn a line of text into a crisp PNG banner, perfect for GitHub READMEs.">
+        <meta property="og:url" content="https://ajmeese7.github.io/readme-ascii/">
+        <meta property="og:image" content="https://ajmeese7.github.io/readme-ascii/ASCII.png">
+        <meta property="og:image:alt" content="readme-ascii ASCII art logo">
+
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="readme-ascii">
+        <meta name="twitter:description" content="Turn a line of text into a crisp PNG banner, perfect for GitHub READMEs.">
+        <meta name="twitter:image" content="https://ajmeese7.github.io/readme-ascii/ASCII.png">
+
         <link rel="stylesheet" href="index.css">
 
         <script>
@@ -39,74 +57,85 @@
     </head>
 
     <body>
-        <button id="themeToggle" type="button" aria-label="Toggle light/dark theme">🌙</button>
-        <script>
-            // Set the toggle glyph synchronously so it matches the pre-paint theme.
-            (function() {
-                var btn = document.getElementById("themeToggle");
-                if (btn) btn.textContent = document.documentElement.getAttribute("data-theme") === "dark" ? "☀️" : "🌙";
-            })();
-        </script>
+        <header class="topbar">
+            <a class="brand" href="https://github.com/ajmeese7/readme-ascii" aria-label="readme-ascii on GitHub">
+                <img src="ASCII.png" class="brand-logo banner-light" alt="readme-ascii" />
+                <img src="ASCII_light.png" class="brand-logo banner-dark" alt="readme-ascii" />
+            </a>
+            <button id="themeToggle" type="button" aria-label="Toggle light/dark theme">🌙</button>
+            <script>
+                // Set the toggle glyph synchronously so it matches the pre-paint theme.
+                (function() {
+                    var btn = document.getElementById("themeToggle");
+                    if (btn) btn.textContent = document.documentElement.getAttribute("data-theme") === "dark" ? "\u{2600}\u{FE0F}" : "\u{1F319}";
+                })();
+            </script>
+        </header>
 
-        <a href="https://github.com/ajmeese7/readme-ascii">
-            <img src="ASCII.png" class="banner banner-light" alt="README ASCII" />
-            <img src="ASCII_light.png" class="banner banner-dark" alt="README ASCII" />
-        </a>
+        <main class="app">
+            <aside class="sidebar">
+                <form id="userInput">
+                    <label for="asciiText">Text</label>
+                    <input id="asciiText" type="text" required placeholder="README ASCII" />
 
-        <form id="userInput">
-            <p>Enter your text for ASCII-ification:</p>
-            <div id="asciiGroup">
-                <input id="asciiText" type="text" required placeholder="README ASCII" />
-                <button id="dropdown" class="btn btn-secondary" type="button" aria-label="Toggle advanced settings">▼</button>
-            </div>
+                    <label for="font">Font</label>
+                    <select id="font">
+                        <option value="Alpha" selected>Alpha</option>
+                        <option value="ANSI Shadow">ANSI Shadow</option>
+                        <option value="Banner3">Banner3</option>
+                        <option value="Big">Big</option>
+                        <option value="Block">Block</option>
+                        <option value="Bloody">Bloody</option>
+                        <option value="Colossal">Colossal</option>
+                        <option value="Doom">Doom</option>
+                        <option value="DOS Rebel">DOS Rebel</option>
+                        <option value="Ghost">Ghost</option>
+                        <option value="Larry 3D">Larry 3D</option>
+                        <option value="Roman">Roman</option>
+                        <option value="Shadow">Shadow</option>
+                        <option value="Slant">Slant</option>
+                        <option value="Standard">Standard</option>
+                        <option value="Star Wars">Star Wars</option>
+                    </select>
 
-            <div id="advanced">
-                <label for="font">Font</label>
-                <select id="font">
-                    <option value="Alpha" selected>Alpha</option>
-                    <option value="ANSI Shadow">ANSI Shadow</option>
-                    <option value="Banner3">Banner3</option>
-                    <option value="Big">Big</option>
-                    <option value="Block">Block</option>
-                    <option value="Bloody">Bloody</option>
-                    <option value="Colossal">Colossal</option>
-                    <option value="Doom">Doom</option>
-                    <option value="DOS Rebel">DOS Rebel</option>
-                    <option value="Ghost">Ghost</option>
-                    <option value="Larry 3D">Larry 3D</option>
-                    <option value="Roman">Roman</option>
-                    <option value="Shadow">Shadow</option>
-                    <option value="Slant">Slant</option>
-                    <option value="Standard">Standard</option>
-                    <option value="Star Wars">Star Wars</option>
-                </select>
+                    <label for="txt-color">Text color</label>
+                    <input id="txt-color" type="color" value="#000000" />
 
-                <label for="txt-color">Text color</label>
-                <input id="txt-color" type="color" value="#000000" />
+                    <label for="bg-color">Background color</label>
+                    <input id="bg-color" type="color" value="#ffffff" disabled />
 
-                <label for="bg-color">Background color</label>
-                <input id="bg-color" type="color" value="#ffffff" disabled />
+                    <div class="checkbox-row">
+                        <input type="checkbox" id="transparent-bg" checked>
+                        <label for="transparent-bg">Transparent background</label>
+                    </div>
+                    <div class="checkbox-row">
+                        <input type="checkbox" id="shadow">
+                        <label for="shadow">Enable shadow</label>
+                    </div>
 
-                <div class="checkbox-row">
-                    <input type="checkbox" id="transparent-bg" checked>
-                    <label for="transparent-bg">Transparent background</label>
+                    <div id="buttons">
+                        <button id="compareButton" class="btn btn-secondary" type="button">Compare fonts</button>
+                        <a href="#" id="download" download>
+                            <button id="downloadButton" class="btn btn-success" type="button">Download</button>
+                        </a>
+                    </div>
+                </form>
+            </aside>
+
+            <section class="canvas" aria-label="Preview">
+                <div class="spinner-container">
+                    <div class="spinner" role="status" aria-label="Loading"></div>
                 </div>
-                <div class="checkbox-row">
-                    <input type="checkbox" id="shadow">
-                    <label for="shadow">Enable shadow</label>
-                </div>
-            </div>
-
-            <div id="buttons">
-                <a href="#" id="download" download>
-                    <button id="downloadButton" class="btn btn-success" type="button">Download</button>
-                </a>
-            </div>
-        </form>
-
-        <div class="spinner-container">
-            <div class="spinner" role="status" aria-label="Loading"></div>
-        </div>
-        <img id="result" alt="" style="visibility: hidden" />
+                <img id="result" alt="" style="visibility: hidden" />
+                <section id="fontFocus" hidden aria-label="Font preview">
+                    <header class="font-focus-header">
+                        <span class="font-focus-label"></span>
+                        <button class="font-focus-close" type="button" aria-label="Close preview">&#x2715;</button>
+                    </header>
+                    <div class="font-focus-image"></div>
+                </section>
+                <section id="fontGrid" hidden aria-label="Font comparison grid"></section>
+            </section>
+        </main>
     </body>
 </html>

@@ -3,6 +3,7 @@
     --bg: #ffffff;
     --fg: #212529;
     --muted-fg: #6c757d;
+    --panel-bg: #f7f7f8;
     --input-bg: #ffffff;
     --input-fg: #212529;
     --input-border: #ced4da;
@@ -20,6 +21,7 @@
     --secondary-hover-bg: #6c757d;
     --secondary-hover-fg: #ffffff;
     --glow-color: 255, 193, 7;
+    --border: #e5e7eb;
 }
 
 [data-theme="dark"] {
@@ -27,6 +29,7 @@
     --bg: #1a1a1a;
     --fg: #e8e8e8;
     --muted-fg: #9aa0a6;
+    --panel-bg: #202020;
     --input-bg: #2a2a2a;
     --input-fg: #e8e8e8;
     --input-border: #3f3f3f;
@@ -44,31 +47,49 @@
     --secondary-hover-bg: #666666;
     --secondary-hover-fg: #ffffff;
     --glow-color: 147, 197, 253;
+    --border: #2f2f2f;
 }
 
 * {
     box-sizing: border-box;
 }
 
+html, body {
+    height: 100%;
+}
+
 body {
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 16px;
+    margin: 0;
     background: var(--bg);
     color: var(--fg);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     transition: background 0.2s ease, color 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
 
-body > a {
-    display: block;
+/* --- Topbar --- */
+.topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+    gap: 12px;
 }
 
-.banner, #result {
+.brand {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+}
+
+.brand-logo {
+    height: 36px;
+    width: auto;
     display: block;
-    margin: 25px auto 0;
-    max-width: 100%;
-    height: auto;
 }
 
 .banner-dark {
@@ -83,35 +104,22 @@ body > a {
     display: block;
 }
 
-#userInput {
-    width: fit-content;
-    max-width: 100%;
-    margin: 40px auto 0;
-}
-
-#userInput p {
-    text-align: center;
-}
-
 /* --- Theme toggle --- */
 #themeToggle {
-    position: fixed;
-    top: 12px;
-    right: 12px;
-    z-index: 100;
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
     border: 1px solid var(--btn-border);
     border-radius: 50%;
     background: var(--bg);
     color: var(--fg);
-    font-size: 18px;
+    font-size: 16px;
     line-height: 1;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: transform 0.15s ease, background 0.2s ease, color 0.2s ease;
+    flex-shrink: 0;
 }
 
 #themeToggle:hover {
@@ -131,7 +139,51 @@ body > a {
     }
 }
 
+/* --- App layout --- */
+.app {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    min-height: 0;
+}
+
+.sidebar {
+    background: var(--panel-bg);
+    border-right: 1px solid var(--border);
+    padding: 20px 18px;
+    overflow-y: auto;
+}
+
+.canvas {
+    padding: 24px;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 16px;
+}
+
 /* --- Form controls --- */
+#userInput {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+label {
+    display: block;
+    font-weight: 500;
+    margin-top: 10px;
+    margin-bottom: 4px;
+    color: var(--fg);
+    font-size: 0.9rem;
+}
+
+#userInput > label:first-of-type {
+    margin-top: 0;
+}
+
 input[type="text"],
 select {
     background: var(--input-bg);
@@ -142,8 +194,7 @@ select {
     font-family: inherit;
     font-size: 1rem;
     line-height: 1.5;
-    width: 200px;
-    max-width: 100%;
+    width: 100%;
 }
 
 input[type="text"]:focus,
@@ -154,8 +205,7 @@ select:focus {
 }
 
 input[type="color"] {
-    width: 200px;
-    max-width: 100%;
+    width: 100%;
     height: 38px;
     padding: 2px;
     border: 1px solid var(--input-border);
@@ -169,55 +219,16 @@ input[type="color"]:disabled {
     opacity: 0.5;
 }
 
-label {
-    display: block;
-    font-weight: 500;
-    margin-bottom: .3rem;
-    color: var(--fg);
-}
-
 .checkbox-row {
     display: flex;
     align-items: center;
     gap: 6px;
-    margin-top: 8px;
+    margin-top: 10px;
 }
 
 .checkbox-row label {
-    margin-bottom: 0;
+    margin: 0;
     font-weight: 400;
-}
-
-#asciiGroup {
-    display: flex;
-    width: 266px;
-    max-width: 100%;
-    margin: 0 auto;
-}
-
-#asciiGroup #asciiText {
-    flex: 1 1 auto;
-    width: auto;
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-    border-right: none;
-}
-
-#asciiGroup #dropdown {
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-    padding: 6px 10px;
-}
-
-#advanced {
-    display: none;
-    width: 243px;
-    max-width: 100%;
-    margin: 12px auto 0;
-}
-
-#advanced > label:not(:first-child) {
-    margin-top: 10px;
 }
 
 /* --- Buttons --- */
@@ -270,9 +281,7 @@ label {
 }
 
 #buttons {
-    width: 266px;
-    max-width: 100%;
-    margin: 12px auto 0;
+    margin-top: 18px;
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -287,11 +296,16 @@ label {
     width: 100%;
 }
 
-/* --- Spinner --- */
+/* --- Canvas / preview --- */
+#result {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
 .spinner-container {
     display: flex;
     justify-content: center;
-    margin-top: 60px;
     visibility: hidden;
 }
 
@@ -312,18 +326,162 @@ label {
     to { transform: rotate(360deg); }
 }
 
-@media (max-width: 480px) {
-    body {
-        padding: 12px;
+/* --- Font compare grid --- */
+#fontGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+    width: 100%;
+}
+
+.font-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+    border: 1px solid var(--input-border);
+    border-radius: 6px;
+    background: var(--input-bg);
+    cursor: pointer;
+    transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.font-card:hover {
+    border-color: var(--btn-border);
+    transform: translateY(-2px);
+}
+
+.font-card.active {
+    border-color: var(--success-border);
+    box-shadow: 0 0 0 2px var(--success-border);
+}
+
+.font-card-label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--muted-fg);
+    text-align: center;
+}
+
+.font-card-preview {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100px;
+    max-height: 140px;
+    overflow: hidden;
+    border-radius: 4px;
+}
+
+.font-card-preview img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+.font-card-preview.error {
+    color: var(--muted-fg);
+    font-size: 0.8rem;
+    font-style: italic;
+}
+
+.font-card-preview.loading {
+    position: relative;
+}
+
+.font-card-preview.loading::after {
+    content: "";
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 0.2em solid var(--input-border);
+    border-top-color: var(--fg);
+    border-radius: 50%;
+    animation: spin 0.75s linear infinite;
+    position: absolute;
+}
+
+/* --- Font focus (theater) panel --- */
+#fontFocus {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--panel-bg);
+}
+
+/* ID specificity overrides UA [hidden]; re-assert explicitly. */
+#fontFocus[hidden],
+#fontGrid[hidden] {
+    display: none;
+}
+
+.font-focus-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.font-focus-label {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--fg);
+}
+
+.font-focus-close {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid var(--input-border);
+    background: transparent;
+    color: var(--fg);
+    font-size: 15px;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+    flex-shrink: 0;
+}
+
+.font-focus-close:hover {
+    background: var(--btn-hover-bg);
+    color: var(--btn-hover-fg);
+}
+
+.font-focus-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: auto;
+}
+
+.font-focus-image img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* --- Mobile --- */
+@media (max-width: 720px) {
+    .app {
+        grid-template-columns: 1fr;
     }
-    #userInput {
-        margin-top: 24px;
+    .sidebar {
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        padding: 16px;
     }
-    #themeToggle {
-        top: 8px;
-        right: 8px;
-        width: 36px;
-        height: 36px;
-        font-size: 16px;
+    .canvas {
+        padding: 16px;
+    }
+    .topbar {
+        padding: 8px 12px;
+    }
+    .brand-logo {
+        height: 28px;
     }
 }
