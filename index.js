@@ -61,18 +61,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
     document.getElementById("compareButton").addEventListener("click", toggleCompare);
 
-    const advanced = document.getElementById("advanced");
-    const dropdown = document.getElementById("dropdown");
-    dropdown.onclick = () => {
-        if (advanced.offsetParent === null) {
-            advanced.style.display = "block";
-            dropdown.innerText = "\u{25B2}";
-        } else {
-            advanced.style.display = "none";
-            dropdown.innerText = "\u{25BC}";
-        }
-    };
-
     const themeToggle = document.getElementById("themeToggle");
     themeToggle.addEventListener("click", () => {
         const next = currentTheme() === "dark" ? "light" : "dark";
