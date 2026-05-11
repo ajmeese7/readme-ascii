@@ -312,6 +312,83 @@ label {
     to { transform: rotate(360deg); }
 }
 
+/* --- Font compare grid --- */
+#fontGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+    margin: 30px auto 0;
+    width: 100%;
+}
+
+.font-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+    border: 1px solid var(--input-border);
+    border-radius: 6px;
+    background: var(--input-bg);
+    cursor: pointer;
+    transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.font-card:hover {
+    border-color: var(--btn-border);
+    transform: translateY(-2px);
+}
+
+.font-card.active {
+    border-color: var(--success-border);
+    box-shadow: 0 0 0 2px var(--success-border);
+}
+
+.font-card-label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--muted-fg);
+    text-align: center;
+}
+
+.font-card-preview {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100px;
+    max-height: 140px;
+    overflow: hidden;
+    border-radius: 4px;
+}
+
+.font-card-preview img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+.font-card-preview.error {
+    color: var(--muted-fg);
+    font-size: 0.8rem;
+    font-style: italic;
+}
+
+.font-card-preview.loading {
+    position: relative;
+}
+
+.font-card-preview.loading::after {
+    content: "";
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 0.2em solid var(--input-border);
+    border-top-color: var(--fg);
+    border-radius: 50%;
+    animation: spin 0.75s linear infinite;
+    position: absolute;
+}
+
 @media (max-width: 480px) {
     body {
         padding: 12px;
@@ -325,5 +402,8 @@ label {
         width: 36px;
         height: 36px;
         font-size: 16px;
+    }
+    #fontGrid {
+        grid-template-columns: 1fr;
     }
 }

@@ -2,9 +2,11 @@ const DEBOUNCE_MS = 200;
 const SPINNER_DELAY_MS = 300;
 const CONTRAST_THRESHOLD = 4.5; // WCAG AA for normal text
 const FORM_STATE_KEY = "form-state";
+const COMPARE_CONCURRENCY = 4;
 
 let debounceHandle = null;
 let currentGenId = 0;
+let compareOpen = false;
 
 document.addEventListener("DOMContentLoaded", function() {
     initTheme();
@@ -21,10 +23,18 @@ document.addEventListener("DOMContentLoaded", function() {
         saveFormState();
         if (debounceHandle) clearTimeout(debounceHandle);
         if (!asciiText.value) {
-            clearPreview();
+            if (compareOpen) {
+                currentGenId++;
+                document.getElementById("fontGrid").innerHTML = "";
+            } else {
+                clearPreview();
+            }
             return;
         }
-        debounceHandle = setTimeout(generateImage, DEBOUNCE_MS);
+        debounceHandle = setTimeout(() => {
+            if (compareOpen) renderFontGrid();
+            else generateImage();
+        }, DEBOUNCE_MS);
     };
 
     asciiText.addEventListener("input", schedulePreview);
@@ -45,18 +55,21 @@ document.addEventListener("DOMContentLoaded", function() {
         event.preventDefault();
         if (!asciiText.value) return;
         if (debounceHandle) clearTimeout(debounceHandle);
-        generateImage();
+        if (compareOpen) renderFontGrid();
+        else generateImage();
     });
+
+    document.getElementById("compareButton").addEventListener("click", toggleCompare);
 
     const advanced = document.getElementById("advanced");
     const dropdown = document.getElementById("dropdown");
     dropdown.onclick = () => {
         if (advanced.offsetParent === null) {
             advanced.style.display = "block";
-            dropdown.innerText = "▲";
+            dropdown.innerText = "\u{25B2}";
         } else {
             advanced.style.display = "none";
-            dropdown.innerText = "▼";
+            dropdown.innerText = "\u{25BC}";
         }
     };
 
@@ -121,7 +134,7 @@ function currentTheme() {
 function applyTheme(theme) {
     document.documentElement.setAttribute("data-theme", theme);
     const toggle = document.getElementById("themeToggle");
-    if (toggle) toggle.textContent = theme === "dark" ? "☀️" : "🌙";
+    if (toggle) toggle.textContent = theme === "dark" ? "\u{2600}\u{FE0F}" : "\u{1F319}";
     try { localStorage.setItem("theme", theme); } catch (e) { /* private mode */ }
 }
 
@@ -305,4 +318,132 @@ function generateImage() {
         image.setAttribute("src", pngUrl);
         image.style.visibility = "visible";
     });
+}
+
+/* ---------- Compare fonts ---------- */
+
+function getFontList() {
+    return Array.from(document.getElementById("font").options).map(o => o.value);
+}
+
+function currentStyleOptions() {
+    const textColor = document.getElementById("txt-color").value;
+    const transparent = document.getElementById("transparent-bg").checked;
+    const backgroundColor = transparent ? "transparent" : document.getElementById("bg-color").value;
+    const shadow = document.getElementById("shadow").checked;
+    return { textColor, backgroundColor, shadow, transparent };
+}
+
+function figletAsync(text, font) {
+    return new Promise((resolve, reject) => {
+        figlet.text(text, { font }, (err, ascii) => {
+            if (err || !ascii) reject(err || new Error("empty figlet output"));
+            else resolve(ascii);
+        });
+    });
+}
+
+async function renderFontGrid() {
+    const genId = ++currentGenId;
+    const grid = document.getElementById("fontGrid");
+    const text = document.getElementById("asciiText").value;
+    grid.innerHTML = "";
+    if (!text) return;
+
+    const fonts = getFontList();
+    const activeFont = document.getElementById("font").value;
+    const styles = currentStyleOptions();
+
+    const cards = fonts.map(font => {
+        const card = document.createElement("div");
+        card.className = "font-card" + (font === activeFont ? " active" : "");
+        card.dataset.font = font;
+        card.tabIndex = 0;
+        card.setAttribute("role", "button");
+        card.setAttribute("aria-label", `Select font ${font}`);
+
+        const label = document.createElement("div");
+        label.className = "font-card-label";
+        label.textContent = font;
+
+        const preview = document.createElement("div");
+        preview.className = "font-card-preview loading";
+
+        card.appendChild(label);
+        card.appendChild(preview);
+
+        const pick = () => selectFont(font);
+        card.addEventListener("click", pick);
+        card.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                pick();
+            }
+        });
+
+        grid.appendChild(card);
+        return { font, preview };
+    });
+
+    let next = 0;
+    const workers = Array.from({ length: COMPARE_CONCURRENCY }, async () => {
+        while (next < cards.length) {
+            const i = next++;
+            const { font, preview } = cards[i];
+            try {
+                const ascii = await figletAsync(text, font);
+                if (genId !== currentGenId) return;
+                const pngUrl = asciiToPng(ascii, styles);
+                if (genId !== currentGenId) return;
+                preview.classList.remove("loading");
+                const img = document.createElement("img");
+                img.alt = font;
+                img.src = pngUrl;
+                preview.appendChild(img);
+            } catch (e) {
+                if (genId !== currentGenId) return;
+                preview.classList.remove("loading");
+                preview.classList.add("error");
+                preview.textContent = "Render failed";
+            }
+        }
+    });
+    await Promise.all(workers);
+}
+
+function openCompare() {
+    compareOpen = true;
+    currentGenId++; // invalidate any in-flight single-preview render
+    document.querySelector(".spinner-container").classList.remove("show");
+    document.getElementById("result").style.display = "none";
+    document.getElementById("downloadButton").disabled = true;
+    document.getElementById("fontGrid").hidden = false;
+    document.getElementById("compareButton").textContent = "Close compare";
+    renderFontGrid();
+}
+
+function closeCompare() {
+    compareOpen = false;
+    currentGenId++; // invalidate any in-flight grid renders
+    const grid = document.getElementById("fontGrid");
+    grid.hidden = true;
+    grid.innerHTML = "";
+    const image = document.getElementById("result");
+    image.style.display = "";
+    document.getElementById("compareButton").textContent = "Compare fonts";
+    // Re-enable download only if a previous single preview is still loaded.
+    const hasPreview = !!image.getAttribute("src") && image.style.visibility !== "hidden";
+    document.getElementById("downloadButton").disabled = !hasPreview;
+}
+
+function toggleCompare() {
+    if (compareOpen) closeCompare();
+    else openCompare();
+}
+
+function selectFont(font) {
+    document.getElementById("font").value = font;
+    saveFormState();
+    closeCompare();
+    if (document.getElementById("asciiText").value) generateImage();
 }

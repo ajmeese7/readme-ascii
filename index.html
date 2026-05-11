@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
+        <meta charset="utf-8">
         <title>README ASCII</title>
 
         <link rel="icon" type="image/png" href="favicon.png">
@@ -44,7 +45,7 @@
             // Set the toggle glyph synchronously so it matches the pre-paint theme.
             (function() {
                 var btn = document.getElementById("themeToggle");
-                if (btn) btn.textContent = document.documentElement.getAttribute("data-theme") === "dark" ? "☀️" : "🌙";
+                if (btn) btn.textContent = document.documentElement.getAttribute("data-theme") === "dark" ? "\u{2600}\u{FE0F}" : "\u{1F319}";
             })();
         </script>
 
@@ -101,6 +102,7 @@
                 <a href="#" id="download" download>
                     <button id="downloadButton" class="btn btn-success" type="button">Download</button>
                 </a>
+                <button id="compareButton" class="btn btn-secondary" type="button">Compare fonts</button>
             </div>
         </form>
 
@@ -108,5 +110,7 @@
             <div class="spinner" role="status" aria-label="Loading"></div>
         </div>
         <img id="result" alt="" style="visibility: hidden" />
+
+        <section id="fontGrid" hidden aria-label="Font comparison grid"></section>
     </body>
 </html>
