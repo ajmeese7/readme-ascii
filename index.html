@@ -72,14 +72,28 @@
             </script>
         </header>
 
-        <main class="app">
-            <aside class="sidebar">
+        <main class="app" id="app">
+            <aside class="sidebar" id="sidebar">
                 <form id="userInput">
                     <label for="asciiText">Text</label>
                     <input id="asciiText" type="text" required placeholder="README ASCII" />
 
-                    <label for="font">Font</label>
-                    <select id="font">
+                    <label for="fontInput">Font</label>
+                    <div class="combobox" id="fontCombobox">
+                        <input
+                            id="fontInput"
+                            type="text"
+                            autocomplete="off"
+                            role="combobox"
+                            aria-autocomplete="list"
+                            aria-expanded="false"
+                            aria-controls="fontList"
+                            placeholder="Search fonts..."
+                        />
+                        <button id="fontInputClear" class="combobox-clear" type="button" aria-label="Clear font search" hidden>&#x2715;</button>
+                        <div id="fontList" class="combobox-list" role="listbox" hidden></div>
+                    </div>
+                    <select id="font" hidden aria-hidden="true">
                         <option value="Alpha" selected>Alpha</option>
                         <option value="ANSI Shadow">ANSI Shadow</option>
                         <option value="Banner3">Banner3</option>
@@ -113,8 +127,34 @@
                         <label for="shadow">Enable shadow</label>
                     </div>
 
+                    <fieldset id="shadowOptions" class="shadow-options" hidden>
+                        <legend class="visually-hidden">Shadow options</legend>
+
+                        <div class="shadow-options-header">
+                            <span class="shadow-options-title">Shadow</span>
+                            <button id="shadowReset" type="button" class="link-button">Reset</button>
+                        </div>
+
+                        <label for="shadow-color">Shadow color</label>
+                        <input id="shadow-color" type="color" value="#000000" />
+
+                        <label for="shadow-blur">
+                            Blur <span class="range-value" id="shadow-blur-value">10</span>px
+                        </label>
+                        <input id="shadow-blur" type="range" min="0" max="40" step="1" value="10" />
+
+                        <label for="shadow-offset-x">
+                            Offset X <span class="range-value" id="shadow-offset-x-value">-5</span>px
+                        </label>
+                        <input id="shadow-offset-x" type="range" min="-30" max="30" step="1" value="-5" />
+
+                        <label for="shadow-offset-y">
+                            Offset Y <span class="range-value" id="shadow-offset-y-value">5</span>px
+                        </label>
+                        <input id="shadow-offset-y" type="range" min="-30" max="30" step="1" value="5" />
+                    </fieldset>
+
                     <div id="buttons">
-                        <button id="compareButton" class="btn btn-secondary" type="button">Compare fonts</button>
                         <a href="#" id="download" download>
                             <button id="downloadButton" class="btn btn-success" type="button">Download</button>
                         </a>
@@ -122,17 +162,26 @@
                 </form>
             </aside>
 
+            <button id="sidebarToggle" class="sidebar-toggle" type="button" aria-label="Collapse sidebar" aria-expanded="true" aria-controls="sidebar">
+                <span class="sidebar-toggle-glyph" aria-hidden="true">&#x2039;</span>
+            </button>
+
             <section class="canvas" aria-label="Preview">
-                <div class="spinner-container">
-                    <div class="spinner" role="status" aria-label="Loading"></div>
-                </div>
-                <img id="result" alt="" style="visibility: hidden" />
-                <section id="fontFocus" hidden aria-label="Font preview">
-                    <header class="font-focus-header">
-                        <span class="font-focus-label"></span>
-                        <button class="font-focus-close" type="button" aria-label="Close preview">&#x2715;</button>
+                <section id="featuredPreview" hidden aria-label="Selected font preview">
+                    <header class="featured-header">
+                        <button id="prevFontBtn" class="featured-nav" type="button" aria-label="Previous font">&#x2039;</button>
+                        <span class="featured-label"></span>
+                        <button id="nextFontBtn" class="featured-nav" type="button" aria-label="Next font">&#x203A;</button>
+                        <a href="#" id="canvasDownload" class="featured-save" download aria-label="Save selected font as PNG">
+                            <button id="canvasDownloadButton" class="btn btn-success btn-sm" type="button" disabled>Save</button>
+                        </a>
                     </header>
-                    <div class="font-focus-image"></div>
+                    <div class="featured-image">
+                        <div class="spinner-container">
+                            <div class="spinner" role="status" aria-label="Loading"></div>
+                        </div>
+                        <img id="result" alt="" style="visibility: hidden" />
+                    </div>
                 </section>
                 <section id="fontGrid" hidden aria-label="Font comparison grid"></section>
             </section>

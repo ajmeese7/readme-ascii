@@ -2,54 +2,97 @@ const DEBOUNCE_MS = 200;
 const SPINNER_DELAY_MS = 300;
 const CONTRAST_THRESHOLD = 4.5; // WCAG AA for normal text
 const FORM_STATE_KEY = "form-state";
-const COMPARE_CONCURRENCY = 4;
+const SIDEBAR_KEY = "sidebar-collapsed";
+const GRID_CONCURRENCY = 4;
+
+const SHADOW_DEFAULTS = {
+    "shadow-color": "#000000",
+    "shadow-blur": "10",
+    "shadow-offset-x": "-5",
+    "shadow-offset-y": "5",
+};
 
 let debounceHandle = null;
-let currentGenId = 0;
-let compareOpen = false;
-let focusedFont = null;
+let featuredGenId = 0;
+let gridGenId = 0;
+let comboboxItems = [];
+let activeComboboxIdx = -1;
 
 document.addEventListener("DOMContentLoaded", function() {
     initTheme();
     restoreFormState();
-
-    const downloadButton = document.getElementById("downloadButton");
-    downloadButton.disabled = true;
+    initSidebar();
+    initCombobox();
 
     const asciiText = document.getElementById("asciiText");
     const transparentBg = document.getElementById("transparent-bg");
     const bgColor = document.getElementById("bg-color");
+    const shadow = document.getElementById("shadow");
+    const shadowOptions = document.getElementById("shadowOptions");
 
-    const schedulePreview = () => {
+    const scheduleAll = () => {
         saveFormState();
         if (debounceHandle) clearTimeout(debounceHandle);
         if (!asciiText.value) {
-            if (compareOpen) {
-                currentGenId++;
-                closeFocus();
-                document.getElementById("fontGrid").innerHTML = "";
-            } else {
-                clearPreview();
-            }
+            featuredGenId++;
+            gridGenId++;
+            clearFeatured();
+            clearGrid();
             return;
         }
         debounceHandle = setTimeout(() => {
-            if (compareOpen) renderFontGrid();
-            else generateImage();
+            renderFeatured();
+            renderGrid();
         }, DEBOUNCE_MS);
     };
 
-    asciiText.addEventListener("input", schedulePreview);
-    document.getElementById("font").addEventListener("change", schedulePreview);
-    document.getElementById("shadow").addEventListener("change", schedulePreview);
+    const scheduleFeatured = () => {
+        saveFormState();
+        if (debounceHandle) clearTimeout(debounceHandle);
+        if (!asciiText.value) {
+            featuredGenId++;
+            clearFeatured();
+            return;
+        }
+        debounceHandle = setTimeout(renderFeatured, DEBOUNCE_MS);
+    };
+
+    asciiText.addEventListener("input", scheduleAll);
+
+    document.getElementById("font").addEventListener("change", () => {
+        updateActiveCard();
+        updateFeaturedLabel();
+        scheduleFeatured();
+    });
+
+    shadow.addEventListener("change", () => {
+        shadowOptions.hidden = !shadow.checked;
+        scheduleAll();
+    });
+
+    document.querySelectorAll("#shadowOptions input").forEach((el) => {
+        el.addEventListener("input", () => {
+            updateShadowValueLabels();
+            scheduleAll();
+        });
+    });
+
+    document.getElementById("shadowReset").addEventListener("click", () => {
+        for (const [id, value] of Object.entries(SHADOW_DEFAULTS)) {
+            document.getElementById(id).value = value;
+        }
+        updateShadowValueLabels();
+        scheduleAll();
+    });
+
     document.getElementById("txt-color").addEventListener("input", () => {
         updateContrastGlow();
-        schedulePreview();
+        scheduleAll();
     });
-    bgColor.addEventListener("input", schedulePreview);
+    bgColor.addEventListener("input", scheduleAll);
     transparentBg.addEventListener("change", () => {
         bgColor.disabled = transparentBg.checked;
-        schedulePreview();
+        scheduleAll();
     });
 
     const form = document.getElementById("userInput");
@@ -57,25 +100,18 @@ document.addEventListener("DOMContentLoaded", function() {
         event.preventDefault();
         if (!asciiText.value) return;
         if (debounceHandle) clearTimeout(debounceHandle);
-        if (compareOpen) renderFontGrid();
-        else generateImage();
+        renderFeatured();
+        renderGrid();
     });
 
-    document.getElementById("compareButton").addEventListener("click", toggleCompare);
+    document.getElementById("prevFontBtn").addEventListener("click", () => navigateFont(-1));
+    document.getElementById("nextFontBtn").addEventListener("click", () => navigateFont(1));
 
-    // Keep the focused-font overlay in sync if the dropdown is used directly.
-    document.getElementById("font").addEventListener("change", () => {
-        if (focusedFont) {
-            focusedFont = document.getElementById("font").value;
-            const label = document.querySelector("#fontFocus .font-focus-label");
-            if (label) label.textContent = focusedFont;
-        }
-    });
-
-    const fontFocus = document.getElementById("fontFocus");
-    fontFocus.querySelector(".font-focus-close").addEventListener("click", closeFocus);
     document.addEventListener("keydown", (e) => {
-        if (e.key === "Escape" && !fontFocus.hidden) closeFocus();
+        if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+        if (isTypingTarget(e.target)) return;
+        e.preventDefault();
+        navigateFont(e.key === "ArrowRight" ? 1 : -1);
     });
 
     const themeToggle = document.getElementById("themeToggle");
@@ -85,12 +121,30 @@ document.addEventListener("DOMContentLoaded", function() {
         updateContrastGlow();
     });
 
+    // Sync derived state to restored values.
+    bgColor.disabled = transparentBg.checked;
+    shadowOptions.hidden = !shadow.checked;
+    updateShadowValueLabels();
+    updateFeaturedLabel();
     updateContrastGlow();
 
-    // Render restored state immediately (skip debounce) so the preview is
-    // there on first paint instead of waiting for the user to interact.
-    if (asciiText.value) generateImage();
+    if (asciiText.value) {
+        renderFeatured();
+        renderGrid();
+    }
 });
+
+function isTypingTarget(target) {
+    if (!target) return false;
+    const tag = target.tagName;
+    if (tag === "TEXTAREA" || tag === "SELECT") return true;
+    if (tag === "INPUT") {
+        // Range/checkbox/color don't need arrows for editing; let them navigate.
+        const type = (target.type || "").toLowerCase();
+        return type === "text" || type === "search" || type === "email" || type === "url" || type === "number" || type === "tel" || type === "password";
+    }
+    return target.isContentEditable;
+}
 
 /* ---------- Form persistence ---------- */
 
@@ -102,6 +156,10 @@ function saveFormState() {
         bgColor: document.getElementById("bg-color").value,
         transparent: document.getElementById("transparent-bg").checked,
         shadow: document.getElementById("shadow").checked,
+        shadowColor: document.getElementById("shadow-color").value,
+        shadowBlur: document.getElementById("shadow-blur").value,
+        shadowOffsetX: document.getElementById("shadow-offset-x").value,
+        shadowOffsetY: document.getElementById("shadow-offset-y").value,
     };
     try { localStorage.setItem(FORM_STATE_KEY, JSON.stringify(state)); } catch (e) { /* private mode */ }
 }
@@ -115,7 +173,8 @@ function restoreFormState() {
     if (!s || typeof s !== "object") return;
 
     const set = (id, key, prop) => {
-        if (typeof s[key] === (prop === "checked" ? "boolean" : "string")) {
+        const expected = prop === "checked" ? "boolean" : "string";
+        if (typeof s[key] === expected) {
             document.getElementById(id)[prop] = s[key];
         }
     };
@@ -125,9 +184,10 @@ function restoreFormState() {
     set("bg-color", "bgColor", "value");
     set("transparent-bg", "transparent", "checked");
     set("shadow", "shadow", "checked");
-
-    // Sync derived state
-    document.getElementById("bg-color").disabled = document.getElementById("transparent-bg").checked;
+    set("shadow-color", "shadowColor", "value");
+    set("shadow-blur", "shadowBlur", "value");
+    set("shadow-offset-x", "shadowOffsetX", "value");
+    set("shadow-offset-y", "shadowOffsetY", "value");
 }
 
 /* ---------- Theme ---------- */
@@ -152,6 +212,41 @@ function initTheme() {
     }
     const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
     applyTheme(prefersDark ? "dark" : "light");
+}
+
+/* ---------- Sidebar ---------- */
+
+function initSidebar() {
+    const app = document.getElementById("app");
+    const toggle = document.getElementById("sidebarToggle");
+    let collapsed = false;
+    try { collapsed = localStorage.getItem(SIDEBAR_KEY) === "1"; } catch (e) {}
+    applySidebar(collapsed);
+    toggle.addEventListener("click", () => applySidebar(!app.classList.contains("sidebar-collapsed")));
+}
+
+function applySidebar(collapsed) {
+    const app = document.getElementById("app");
+    const toggle = document.getElementById("sidebarToggle");
+    app.classList.toggle("sidebar-collapsed", collapsed);
+    toggle.setAttribute("aria-expanded", String(!collapsed));
+    toggle.setAttribute("aria-label", collapsed ? "Expand sidebar" : "Collapse sidebar");
+    try { localStorage.setItem(SIDEBAR_KEY, collapsed ? "1" : "0"); } catch (e) {}
+}
+
+/* ---------- Shadow value labels ---------- */
+
+function updateShadowValueLabels() {
+    const map = [
+        ["shadow-blur", "shadow-blur-value"],
+        ["shadow-offset-x", "shadow-offset-x-value"],
+        ["shadow-offset-y", "shadow-offset-y-value"],
+    ];
+    map.forEach(([inputId, valueId]) => {
+        const input = document.getElementById(inputId);
+        const out = document.getElementById(valueId);
+        if (input && out) out.textContent = input.value;
+    });
 }
 
 /* ---------- Contrast ---------- */
@@ -212,20 +307,21 @@ function updateContrastGlow() {
     }
 }
 
-/* ---------- Preview ---------- */
+/* ---------- Style options ---------- */
 
-function clearPreview() {
-    currentGenId++; // invalidate any in-flight generation
-    const image = document.getElementById("result");
-    const downloadButton = document.getElementById("downloadButton");
-    const spinner = document.querySelector(".spinner-container");
-    image.removeAttribute("src");
-    image.style.visibility = "hidden";
-    downloadButton.disabled = true;
-    spinner.classList.remove("show");
+function styleOptions() {
+    const textColor = document.getElementById("txt-color").value;
+    const transparent = document.getElementById("transparent-bg").checked;
+    const backgroundColor = transparent ? "transparent" : document.getElementById("bg-color").value;
+    const shadow = document.getElementById("shadow").checked;
+    const shadowColor = document.getElementById("shadow-color").value;
+    const shadowBlur = parseFloat(document.getElementById("shadow-blur").value) || 0;
+    const shadowOffsetX = parseFloat(document.getElementById("shadow-offset-x").value) || 0;
+    const shadowOffsetY = parseFloat(document.getElementById("shadow-offset-y").value) || 0;
+    return { textColor, backgroundColor, shadow, transparent, shadowColor, shadowBlur, shadowOffsetX, shadowOffsetY };
 }
 
-function asciiToPng(ascii, { textColor, backgroundColor, shadow, transparent }) {
+function asciiToPng(ascii, opts) {
     const fontSize = 12;
     const lineHeight = 12;
     const padding = 20;
@@ -241,102 +337,24 @@ function asciiToPng(ascii, { textColor, backgroundColor, shadow, transparent }) 
     canvas.height = lines.length * lineHeight + padding * 2;
 
     const ctx = canvas.getContext("2d");
-    if (!transparent) {
-        ctx.fillStyle = backgroundColor;
+    if (!opts.transparent) {
+        ctx.fillStyle = opts.backgroundColor;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
 
     ctx.font = font;
     ctx.textBaseline = "top";
-    ctx.fillStyle = textColor;
+    ctx.fillStyle = opts.textColor;
 
-    if (shadow) {
-        ctx.shadowColor = textColor;
-        ctx.shadowBlur = fontSize * 0.85;
-        ctx.shadowOffsetX = -fontSize * 0.45;
-        ctx.shadowOffsetY = fontSize * 0.45;
+    if (opts.shadow) {
+        ctx.shadowColor = opts.shadowColor;
+        ctx.shadowBlur = opts.shadowBlur;
+        ctx.shadowOffsetX = opts.shadowOffsetX;
+        ctx.shadowOffsetY = opts.shadowOffsetY;
     }
 
     lines.forEach((line, i) => ctx.fillText(line, padding, padding + i * lineHeight));
     return canvas.toDataURL("image/png");
-}
-
-function generateImage() {
-    const genId = ++currentGenId;
-    const spinner = document.querySelector(".spinner-container");
-    const image = document.getElementById("result");
-    const downloadButton = document.getElementById("downloadButton");
-
-    // Only show the spinner if generation is slow (e.g. first-time font fetch).
-    // Fast regens skip the flicker entirely and just swap the image when ready.
-    const spinnerDelay = setTimeout(() => {
-        if (genId === currentGenId) {
-            spinner.classList.add("show");
-            image.style.visibility = "hidden";
-        }
-    }, SPINNER_DELAY_MS);
-
-    const asciiText = document.getElementById("asciiText").value;
-    const textColor = document.getElementById("txt-color").value;
-    const transparent = document.getElementById("transparent-bg").checked;
-    const backgroundColor = transparent ? "transparent" : document.getElementById("bg-color").value;
-    const shadow = document.getElementById("shadow").checked;
-    const font = document.getElementById("font").value || "Alpha";
-
-    const finish = () => {
-        clearTimeout(spinnerDelay);
-        spinner.classList.remove("show");
-    };
-
-    const showError = () => {
-        if (genId !== currentGenId) return;
-        finish();
-        image.setAttribute("src", "error.png");
-        image.style.visibility = "visible";
-        downloadButton.disabled = true;
-    };
-
-    figlet.text(asciiText, { font }, (err, ascii) => {
-        if (genId !== currentGenId) return;
-
-        if (err || !ascii) {
-            showError();
-            return;
-        }
-
-        let pngUrl;
-        try {
-            pngUrl = asciiToPng(ascii, { textColor, backgroundColor, shadow, transparent });
-        } catch (e) {
-            showError();
-            return;
-        }
-
-        if (genId !== currentGenId) return;
-        finish();
-
-        const download = document.getElementById("download");
-        download.href = pngUrl;
-        download.download = `${asciiText.split(" ").join("_")}.png`;
-
-        downloadButton.disabled = false;
-        image.setAttribute("src", pngUrl);
-        image.style.visibility = "visible";
-    });
-}
-
-/* ---------- Compare fonts ---------- */
-
-function getFontList() {
-    return Array.from(document.getElementById("font").options).map(o => o.value);
-}
-
-function currentStyleOptions() {
-    const textColor = document.getElementById("txt-color").value;
-    const transparent = document.getElementById("transparent-bg").checked;
-    const backgroundColor = transparent ? "transparent" : document.getElementById("bg-color").value;
-    const shadow = document.getElementById("shadow").checked;
-    return { textColor, backgroundColor, shadow, transparent };
 }
 
 function figletAsync(text, font) {
@@ -348,18 +366,116 @@ function figletAsync(text, font) {
     });
 }
 
-async function renderFontGrid() {
-    const genId = ++currentGenId;
+/* ---------- Featured preview ---------- */
+
+function clearFeatured() {
+    const image = document.getElementById("result");
+    const featured = document.getElementById("featuredPreview");
+    image.removeAttribute("src");
+    image.style.visibility = "hidden";
+    featured.hidden = true;
+    document.querySelector(".spinner-container").classList.remove("show");
+    document.getElementById("downloadButton").disabled = true;
+    document.getElementById("canvasDownloadButton").disabled = true;
+}
+
+function renderFeatured() {
+    const genId = ++featuredGenId;
+    const spinner = document.querySelector(".spinner-container");
+    const image = document.getElementById("result");
+    const featured = document.getElementById("featuredPreview");
+    const downloadButton = document.getElementById("downloadButton");
+    const canvasDownloadButton = document.getElementById("canvasDownloadButton");
+
+    featured.hidden = false;
+    updateFeaturedLabel();
+
+    const spinnerDelay = setTimeout(() => {
+        if (genId === featuredGenId) {
+            spinner.classList.add("show");
+            image.style.visibility = "hidden";
+        }
+    }, SPINNER_DELAY_MS);
+
+    const text = document.getElementById("asciiText").value;
+    const font = document.getElementById("font").value || "Alpha";
+    const styles = styleOptions();
+
+    const finish = () => {
+        clearTimeout(spinnerDelay);
+        spinner.classList.remove("show");
+    };
+
+    const showError = () => {
+        if (genId !== featuredGenId) return;
+        finish();
+        image.setAttribute("src", "error.png");
+        image.style.visibility = "visible";
+        downloadButton.disabled = true;
+        canvasDownloadButton.disabled = true;
+    };
+
+    figletAsync(text, font).then((ascii) => {
+        if (genId !== featuredGenId) return;
+        let pngUrl;
+        try {
+            pngUrl = asciiToPng(ascii, styles);
+        } catch (e) {
+            showError();
+            return;
+        }
+        if (genId !== featuredGenId) return;
+        finish();
+
+        const baseName = text.split(" ").join("_");
+        const fileName = `${baseName}.png`;
+        const download = document.getElementById("download");
+        download.href = pngUrl;
+        download.download = fileName;
+        const canvasDownload = document.getElementById("canvasDownload");
+        canvasDownload.href = pngUrl;
+        canvasDownload.download = fileName;
+
+        downloadButton.disabled = false;
+        canvasDownloadButton.disabled = false;
+        image.setAttribute("src", pngUrl);
+        image.style.visibility = "visible";
+    }).catch(showError);
+}
+
+function updateFeaturedLabel() {
+    const label = document.querySelector(".featured-label");
+    if (label) label.textContent = document.getElementById("font").value || "";
+}
+
+/* ---------- Grid ---------- */
+
+function getFontList() {
+    return Array.from(document.getElementById("font").options).map(o => o.value);
+}
+
+function clearGrid() {
+    const grid = document.getElementById("fontGrid");
+    grid.innerHTML = "";
+    grid.hidden = true;
+}
+
+async function renderGrid() {
+    const genId = ++gridGenId;
     const grid = document.getElementById("fontGrid");
     const text = document.getElementById("asciiText").value;
     grid.innerHTML = "";
-    if (!text) return;
+    if (!text) {
+        grid.hidden = true;
+        return;
+    }
+    grid.hidden = false;
 
     const fonts = getFontList();
     const activeFont = document.getElementById("font").value;
-    const styles = currentStyleOptions();
+    const styles = styleOptions();
 
-    const cards = fonts.map(font => {
+    const cards = fonts.map((font) => {
         const card = document.createElement("div");
         card.className = "font-card" + (font === activeFont ? " active" : "");
         card.dataset.font = font;
@@ -391,23 +507,22 @@ async function renderFontGrid() {
     });
 
     let next = 0;
-    const workers = Array.from({ length: COMPARE_CONCURRENCY }, async () => {
+    const workers = Array.from({ length: GRID_CONCURRENCY }, async () => {
         while (next < cards.length) {
             const i = next++;
             const { font, preview } = cards[i];
             try {
                 const ascii = await figletAsync(text, font);
-                if (genId !== currentGenId) return;
+                if (genId !== gridGenId) return;
                 const pngUrl = asciiToPng(ascii, styles);
-                if (genId !== currentGenId) return;
+                if (genId !== gridGenId) return;
                 preview.classList.remove("loading");
                 const img = document.createElement("img");
                 img.alt = font;
                 img.src = pngUrl;
                 preview.appendChild(img);
-                if (focusedFont === font) setFocusImage(font, pngUrl);
             } catch (e) {
-                if (genId !== currentGenId) return;
+                if (genId !== gridGenId) return;
                 preview.classList.remove("loading");
                 preview.classList.add("error");
                 preview.textContent = "Render failed";
@@ -417,73 +532,190 @@ async function renderFontGrid() {
     await Promise.all(workers);
 }
 
-function openCompare() {
-    compareOpen = true;
-    currentGenId++; // invalidate any in-flight single-preview render
-    document.querySelector(".spinner-container").classList.remove("show");
-    document.getElementById("result").style.display = "none";
-    document.getElementById("downloadButton").disabled = true;
-    document.getElementById("fontGrid").hidden = false;
-    document.getElementById("compareButton").textContent = "Close compare";
-    renderFontGrid();
-}
-
-function closeCompare() {
-    compareOpen = false;
-    currentGenId++; // invalidate any in-flight grid renders
-    closeFocus();
-    const grid = document.getElementById("fontGrid");
-    grid.hidden = true;
-    grid.innerHTML = "";
-    const image = document.getElementById("result");
-    image.style.display = "";
-    document.getElementById("compareButton").textContent = "Compare fonts";
-    // Re-enable download only if a previous single preview is still loaded.
-    const hasPreview = !!image.getAttribute("src") && image.style.visibility !== "hidden";
-    document.getElementById("downloadButton").disabled = !hasPreview;
-}
-
-function toggleCompare() {
-    if (compareOpen) closeCompare();
-    else openCompare();
+function updateActiveCard() {
+    const activeFont = document.getElementById("font").value;
+    document.querySelectorAll(".font-card").forEach((c) => {
+        c.classList.toggle("active", c.dataset.font === activeFont);
+    });
 }
 
 function selectFont(font) {
-    document.getElementById("font").value = font;
-    saveFormState();
-    document.querySelectorAll(".font-card").forEach(c => {
-        c.classList.toggle("active", c.dataset.font === font);
+    const select = document.getElementById("font");
+    if (select.value === font) return;
+    select.value = font;
+    select.dispatchEvent(new Event("change"));
+}
+
+function navigateFont(direction) {
+    const select = document.getElementById("font");
+    const fonts = getFontList();
+    if (!fonts.length) return;
+    const idx = fonts.indexOf(select.value);
+    const next = (idx + direction + fonts.length) % fonts.length;
+    selectFont(fonts[next]);
+    syncComboboxValue();
+}
+
+/* ---------- Combobox ---------- */
+
+function initCombobox() {
+    const input = document.getElementById("fontInput");
+    const clear = document.getElementById("fontInputClear");
+    const list = document.getElementById("fontList");
+    const select = document.getElementById("font");
+    const wrap = document.getElementById("fontCombobox");
+
+    syncComboboxValue();
+    refreshClearButton();
+
+    const openList = (filter) => {
+        renderComboboxOptions(filter);
+        list.hidden = false;
+        wrap.classList.add("open");
+        input.setAttribute("aria-expanded", "true");
+    };
+
+    const closeList = () => {
+        list.hidden = true;
+        wrap.classList.remove("open");
+        input.setAttribute("aria-expanded", "false");
+        activeComboboxIdx = -1;
+    };
+
+    input.addEventListener("focus", () => {
+        input.select();
+        openList("");
     });
-    const card = document.querySelector(`.font-card[data-font="${CSS.escape(font)}"]`);
-    const img = card && card.querySelector(".font-card-preview img");
-    openFocus(font, img ? img.src : null);
+    input.addEventListener("input", () => {
+        openList(input.value);
+        refreshClearButton();
+    });
+    clear.addEventListener("click", () => {
+        input.value = "";
+        refreshClearButton();
+        openList("");
+        input.focus();
+    });
+
+    input.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowDown") {
+            e.preventDefault();
+            if (list.hidden) openList(input.value);
+            moveActive(1);
+        } else if (e.key === "ArrowUp") {
+            e.preventDefault();
+            if (list.hidden) openList(input.value);
+            moveActive(-1);
+        } else if (e.key === "Enter") {
+            if (!list.hidden && comboboxItems.length) {
+                e.preventDefault();
+                const pick = comboboxItems[activeComboboxIdx >= 0 ? activeComboboxIdx : 0];
+                if (pick) commitFont(pick);
+            }
+        } else if (e.key === "Escape") {
+            e.preventDefault();
+            closeList();
+            syncComboboxValue();
+            input.blur();
+        } else if (e.key === "Tab") {
+            closeList();
+        }
+    });
+
+    document.addEventListener("mousedown", (e) => {
+        if (!wrap.contains(e.target)) {
+            // Treat outside click as a cancel; restore the current selection in the input.
+            closeList();
+            syncComboboxValue();
+        }
+    });
+
+    select.addEventListener("change", syncComboboxValue);
 }
 
-function openFocus(font, imgSrc) {
-    focusedFont = font;
-    const overlay = document.getElementById("fontFocus");
-    overlay.querySelector(".font-focus-label").textContent = font;
-    setFocusImage(font, imgSrc);
-    overlay.hidden = false;
+function refreshClearButton() {
+    const input = document.getElementById("fontInput");
+    const clear = document.getElementById("fontInputClear");
+    clear.hidden = !input.value;
 }
 
-function setFocusImage(font, imgSrc) {
-    if (focusedFont !== font) return;
-    const wrap = document.querySelector("#fontFocus .font-focus-image");
-    if (!wrap) return;
-    wrap.innerHTML = "";
-    if (!imgSrc) return;
-    const img = document.createElement("img");
-    img.alt = font;
-    img.src = imgSrc;
-    wrap.appendChild(img);
+function syncComboboxValue() {
+    const input = document.getElementById("fontInput");
+    const select = document.getElementById("font");
+    input.value = select.value;
+    refreshClearButton();
 }
 
-function closeFocus() {
-    focusedFont = null;
-    const overlay = document.getElementById("fontFocus");
-    if (!overlay) return;
-    overlay.hidden = true;
-    overlay.querySelector(".font-focus-label").textContent = "";
-    overlay.querySelector(".font-focus-image").innerHTML = "";
+function renderComboboxOptions(filter) {
+    const list = document.getElementById("fontList");
+    const select = document.getElementById("font");
+    const allFonts = getFontList();
+    const q = (filter || "").trim().toLowerCase();
+    const matching = q ? allFonts.filter(f => f.toLowerCase().includes(q)) : allFonts;
+    list.innerHTML = "";
+    comboboxItems = matching;
+
+    if (!matching.length) {
+        const empty = document.createElement("div");
+        empty.className = "combobox-empty";
+        empty.textContent = "No fonts match";
+        list.appendChild(empty);
+        activeComboboxIdx = -1;
+        return;
+    }
+
+    activeComboboxIdx = Math.max(0, matching.indexOf(select.value));
+
+    matching.forEach((font, i) => {
+        const item = document.createElement("div");
+        item.className = "combobox-item";
+        if (font === select.value) item.classList.add("selected");
+        if (i === activeComboboxIdx) item.classList.add("active");
+        item.dataset.font = font;
+        item.setAttribute("role", "option");
+        item.textContent = font;
+        item.addEventListener("mousedown", (e) => {
+            // mousedown so the input doesn't lose focus first and fire its outside-click handler.
+            e.preventDefault();
+            commitFont(font);
+        });
+        list.appendChild(item);
+    });
+
+    scrollActiveIntoView();
+}
+
+function moveActive(direction) {
+    if (!comboboxItems.length) return;
+    activeComboboxIdx = (activeComboboxIdx + direction + comboboxItems.length) % comboboxItems.length;
+    const nodes = document.querySelectorAll("#fontList .combobox-item");
+    nodes.forEach((n, i) => n.classList.toggle("active", i === activeComboboxIdx));
+    scrollActiveIntoView();
+}
+
+function scrollActiveIntoView() {
+    const list = document.getElementById("fontList");
+    const node = list.querySelectorAll(".combobox-item")[activeComboboxIdx];
+    if (node) node.scrollIntoView({ block: "nearest" });
+}
+
+function commitFont(font) {
+    const select = document.getElementById("font");
+    const input = document.getElementById("fontInput");
+    const list = document.getElementById("fontList");
+    const wrap = document.getElementById("fontCombobox");
+
+    list.hidden = true;
+    wrap.classList.remove("open");
+    input.setAttribute("aria-expanded", "false");
+    activeComboboxIdx = -1;
+
+    if (select.value !== font) {
+        select.value = font;
+        select.dispatchEvent(new Event("change"));
+    } else {
+        // The dropdown was used to confirm the existing pick; just resync the textbox.
+        syncComboboxValue();
+    }
+    input.blur();
 }
