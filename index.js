@@ -89,6 +89,7 @@ document.addEventListener("DOMContentLoaded", function() {
         updateContrastGlow();
         scheduleAll();
     });
+    document.getElementById("scale").addEventListener("change", scheduleFeatured);
     bgColor.addEventListener("input", scheduleAll);
     transparentBg.addEventListener("change", () => {
         bgColor.disabled = transparentBg.checked;
@@ -160,6 +161,7 @@ function saveFormState() {
         shadowBlur: document.getElementById("shadow-blur").value,
         shadowOffsetX: document.getElementById("shadow-offset-x").value,
         shadowOffsetY: document.getElementById("shadow-offset-y").value,
+        scale: document.getElementById("scale").value,
     };
     try { localStorage.setItem(FORM_STATE_KEY, JSON.stringify(state)); } catch (e) { /* private mode */ }
 }
@@ -188,6 +190,7 @@ function restoreFormState() {
     set("shadow-blur", "shadowBlur", "value");
     set("shadow-offset-x", "shadowOffsetX", "value");
     set("shadow-offset-y", "shadowOffsetY", "value");
+    set("scale", "scale", "value");
 }
 
 /* ---------- Theme ---------- */
@@ -321,7 +324,12 @@ function styleOptions() {
     return { textColor, backgroundColor, shadow, transparent, shadowColor, shadowBlur, shadowOffsetX, shadowOffsetY };
 }
 
+function exportScale() {
+    return parseInt(document.getElementById("scale").value, 10) || 1;
+}
+
 function asciiToPng(ascii, opts) {
+    const scale = opts.scale || 1;
     const fontSize = 12;
     const lineHeight = 12;
     const padding = 20;
@@ -332,14 +340,19 @@ function asciiToPng(ascii, opts) {
     const lines = ascii.split("\n");
     const maxWidth = lines.reduce((w, l) => Math.max(w, measure.measureText(l).width), 0);
 
+    const logicalWidth = Math.ceil(maxWidth + padding * 2);
+    const logicalHeight = lines.length * lineHeight + padding * 2;
+
     const canvas = document.createElement("canvas");
-    canvas.width = Math.ceil(maxWidth + padding * 2);
-    canvas.height = lines.length * lineHeight + padding * 2;
+    canvas.width = logicalWidth * scale;
+    canvas.height = logicalHeight * scale;
 
     const ctx = canvas.getContext("2d");
+    // Draw in logical units; the transform upscales pixels so text stays crisp.
+    ctx.scale(scale, scale);
     if (!opts.transparent) {
         ctx.fillStyle = opts.backgroundColor;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillRect(0, 0, logicalWidth, logicalHeight);
     }
 
     ctx.font = font;
@@ -399,7 +412,7 @@ function renderFeatured() {
 
     const text = document.getElementById("asciiText").value;
     const font = document.getElementById("font").value || "Alpha";
-    const styles = styleOptions();
+    const styles = { ...styleOptions(), scale: exportScale() };
 
     const finish = () => {
         clearTimeout(spinnerDelay);
