@@ -422,7 +422,7 @@ function renderFeatured() {
     const showError = () => {
         if (genId !== featuredGenId) return;
         finish();
-        image.setAttribute("src", "error.png");
+        image.setAttribute("src", "assets/error.png");
         image.style.visibility = "visible";
         downloadButton.disabled = true;
         canvasDownloadButton.disabled = true;

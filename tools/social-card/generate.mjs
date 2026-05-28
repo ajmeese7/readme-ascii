@@ -1,14 +1,16 @@
-// Regenerates social-card.png, the og:image / twitter:image asset.
+// Regenerates assets/social-card.png, the og:image / twitter:image asset.
 // Renders a fixed 1200x630 card (the de facto social-sharing size) with a dark
-// gradient and a terminal-green figlet banner so it reads well on any platform.
-// Run: node scripts/gen-social-card.mjs
+// gradient and a terminal-green figlet banner so it reads well on any platform,
+// then shrinks it with pngquant (palette) + oxipng (lossless) if those are on PATH.
+// Run: node tools/social-card/generate.mjs  (or: npm run gen:social)
 import { chromium } from "@playwright/test";
-import { writeFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { statSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const OUT = join(ROOT, "social-card.png");
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
+const OUT = join(ROOT, "assets", "social-card.png");
 
 const TEXT = "readme-ascii";
 const FONT = "ANSI Shadow";
@@ -83,4 +85,28 @@ try {
     console.log(`wrote ${OUT} (${WIDTH}x${HEIGHT})`);
 } finally {
     await browser.close();
+}
+
+optimize(OUT);
+
+function optimize(file) {
+    const before = statSync(file).size;
+    // pngquant first (lossy palette), then oxipng (lossless recompress of the result).
+    run("pngquant", ["--quality=60-90", "--strip", "--force", "--output", file, file]);
+    run("oxipng", ["-o", "max", "--strip", "safe", file]);
+    const after = statSync(file).size;
+    console.log(`optimized ${kb(before)} -> ${kb(after)}`);
+}
+
+function run(bin, args) {
+    try {
+        execFileSync(bin, args, { stdio: "pipe" });
+    } catch (err) {
+        if (err.code === "ENOENT") console.warn(`! ${bin} not on PATH; skipping (image left less optimized)`);
+        else console.warn(`! ${bin} exited ${err.status}; skipping`);
+    }
+}
+
+function kb(bytes) {
+    return `${(bytes / 1024).toFixed(1)}K`;
 }

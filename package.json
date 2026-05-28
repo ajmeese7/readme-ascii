@@ -5,7 +5,7 @@
   "description": "Static site, no build step. Node tooling is dev-only (serve + Playwright).",
   "scripts": {
     "start": "serve . -l 8123",
-    "gen:social": "node scripts/gen-social-card.mjs",
+    "gen:social": "node tools/social-card/generate.mjs",
     "test": "playwright test",
     "test:headed": "playwright test --headed"
   },
